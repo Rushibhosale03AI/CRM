@@ -1,0 +1,28 @@
+# Node modules
+frontend/node_modules/
+
+# Python virtual environment
+backend/venv/
+
+# Django database
+backend/db.sqlite3
+
+# Python cache
+backend/**/__pycache__/
+backend/**/*.py[cod]
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and dumps
+*.log
+*.stackdump
+
+# IDE files
+.vscode/
+.idea/
+
+# Build outputs
+/dist
+/build
