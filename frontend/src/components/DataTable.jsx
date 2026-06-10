@@ -1,27 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 
 const DataTable = ({ columns, data, onSelectAll, selectedIds }) => {
   const [hoveredRow, setHoveredRow] = useState(null);
-  const [focusedSearch, setFocusedSearch] = useState(null);
-  const [searchQueries, setSearchQueries] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
 
-  const handleSearchChange = (accessor, value) => {
-    if (!accessor) return;
-    setSearchQueries(prev => ({
-      ...prev,
-      [accessor]: value
-    }));
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [data]);
+
+  const totalPages = Math.ceil(data.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const currentData = data.slice(startIndex, startIndex + rowsPerPage);
+
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage(p => p + 1);
+  };
+  
+  const handlePrev = () => {
+    if (currentPage > 1) setCurrentPage(p => p - 1);
   };
 
-  const filteredData = data.filter(row => {
-    return Object.keys(searchQueries).every(accessor => {
-      const query = searchQueries[accessor];
-      if (!query) return true;
-      const rowValue = row[accessor] ? String(row[accessor]).toLowerCase() : '';
-      return rowValue.includes(query.toLowerCase());
-    });
-  });
+  const getPageNumbers = () => {
+    let pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+        pages.push(i);
+      } else if (i === currentPage - 2 || i === currentPage + 2) {
+        pages.push('...');
+      }
+    }
+    return pages.filter((p, index) => p !== '...' || pages[index - 1] !== '...');
+  };
 
   return (
     <div style={{
@@ -45,52 +56,9 @@ const DataTable = ({ columns, data, onSelectAll, selectedIds }) => {
                 </th>
               ))}
             </tr>
-            {/* Filter Row */}
-            <tr style={{ borderBottom: '1px solid #f1f5f9', backgroundColor: 'rgba(248, 250, 252, 0.3)' }}>
-
-              {columns.map((col, idx) => (
-                <th key={idx} style={{ padding: '8px 12px', borderRight: '1px solid rgba(241, 245, 249, 0.5)', fontWeight: 'normal' }}>
-                  {col.accessor && (
-                    <div style={{ position: 'relative' }}>
-                      <Search style={{ 
-                        width: '14px', 
-                        height: '14px', 
-                        color: focusedSearch === idx ? '#14b8a6' : '#94a3b8', 
-                        position: 'absolute', 
-                        left: '10px', 
-                        top: '50%', 
-                        transform: 'translateY(-50%)',
-                        transition: 'color 0.2s'
-                      }} />
-                      <input 
-                        type="text" 
-                        placeholder={`Filter ${col.header}...`}
-                        value={searchQueries[col.accessor] || ''}
-                        onChange={(e) => handleSearchChange(col.accessor, e.target.value)}
-                        onFocus={() => setFocusedSearch(idx)}
-                        onBlur={() => setFocusedSearch(null)}
-                        style={{
-                          width: '100%',
-                          backgroundColor: '#ffffff',
-                          border: focusedSearch === idx ? '1px solid #14b8a6' : '1px solid #e2e8f0',
-                          borderRadius: '6px',
-                          fontSize: '12px',
-                          padding: '6px 12px 6px 32px',
-                          color: '#475569',
-                          outline: 'none',
-                          boxShadow: focusedSearch === idx ? '0 0 0 2px rgba(20, 184, 166, 0.2)' : '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-                          transition: 'all 0.2s',
-                          boxSizing: 'border-box'
-                        }} 
-                      />
-                    </div>
-                  )}
-                </th>
-              ))}
-            </tr>
           </thead>
           <tbody style={{ color: '#475569' }}>
-            {filteredData.map((row, rowIdx) => {
+            {currentData.map((row, rowIdx) => {
               const isSelected = selectedIds?.includes(row.id);
               return (
                 <tr 
@@ -112,7 +80,7 @@ const DataTable = ({ columns, data, onSelectAll, selectedIds }) => {
                 </tr>
               )
             })}
-            {filteredData.length === 0 && (
+            {data.length === 0 && (
               <tr>
                 <td colSpan={columns.length + 1} style={{ padding: '48px 20px', textAlign: 'center', color: '#64748b' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
@@ -126,28 +94,78 @@ const DataTable = ({ columns, data, onSelectAll, selectedIds }) => {
           </tbody>
         </table>
       </div>
-      <div style={{
-        padding: '14px 24px',
-        borderTop: '1px solid #e2e8f0',
-        backgroundColor: 'rgba(248, 250, 252, 0.8)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        fontSize: '12px',
-        color: '#64748b',
-        fontWeight: 500
-      }}>
-        <div>Showing <span style={{ color: '#1e293b' }}>{filteredData.length}</span> records</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>Previous</button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ width: '24px', height: '24px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0d9488', color: '#ffffff', fontWeight: 600 }}>1</span>
-            <span style={{ width: '24px', height: '24px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>2</span>
-            <span style={{ width: '24px', height: '24px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>3</span>
+      
+      {data.length > 0 && (
+        <div style={{
+          padding: '14px 24px',
+          borderTop: '1px solid #e2e8f0',
+          backgroundColor: 'rgba(248, 250, 252, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: '12px',
+          color: '#64748b',
+          fontWeight: 500
+        }}>
+          <div>
+            Showing <span style={{ color: '#1e293b' }}>{Math.min(startIndex + 1, data.length)}</span> to <span style={{ color: '#1e293b' }}>{Math.min(startIndex + rowsPerPage, data.length)}</span> of <span style={{ color: '#1e293b' }}>{data.length}</span> records
           </div>
-          <button style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>Next</button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <button 
+              onClick={handlePrev}
+              disabled={currentPage === 1}
+              style={{ 
+                background: 'none', 
+                border: 'none', 
+                color: currentPage === 1 ? '#cbd5e1' : '#64748b', 
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer' 
+              }}
+            >
+              Previous
+            </button>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              {getPageNumbers().map((page, idx) => (
+                page === '...' ? (
+                  <span key={`dots-${idx}`} style={{ padding: '0 4px', color: '#94a3b8' }}>...</span>
+                ) : (
+                  <span 
+                    key={idx}
+                    onClick={() => setCurrentPage(page)}
+                    style={{ 
+                      width: '24px', 
+                      height: '24px', 
+                      borderRadius: '4px', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      backgroundColor: currentPage === page ? '#0d9488' : 'transparent', 
+                      color: currentPage === page ? '#ffffff' : '#475569', 
+                      fontWeight: currentPage === page ? 600 : 400,
+                      cursor: 'pointer' 
+                    }}
+                  >
+                    {page}
+                  </span>
+                )
+              ))}
+            </div>
+
+            <button 
+              onClick={handleNext}
+              disabled={currentPage === totalPages}
+              style={{ 
+                background: 'none', 
+                border: 'none', 
+                color: currentPage === totalPages ? '#cbd5e1' : '#64748b', 
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' 
+              }}
+            >
+              Next
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

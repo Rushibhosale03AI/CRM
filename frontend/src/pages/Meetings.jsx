@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DataTable from '../components/DataTable';
 import { Edit, Trash2, CheckCircle2, ChevronDown, Filter, LayoutGrid, X } from 'lucide-react';
 import apiClient from '../api/apiClient';
+import PageSearchBar from '../components/PageSearchBar';
 
 const Meetings = () => {
   const [meetings, setMeetings] = useState([]);
@@ -49,6 +50,10 @@ const Meetings = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '100%', margin: '0 auto' }}>
       
+      <div style={{ marginBottom: '-8px' }}>
+        <PageSearchBar placeholder="Search meetings..." />
+      </div>
+
       {/* Top Action Bar */}
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-start', gap: '16px', backgroundColor: '#ffffff', padding: '16px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         
@@ -90,7 +95,7 @@ const Meetings = () => {
                 cursor: 'pointer',
                 border: activeTab === tab ? '1px solid #cbd5e1' : '1px solid transparent',
                 backgroundColor: activeTab === tab ? '#e0f2fe' : 'transparent',
-                color: activeTab === tab ? '#0284c7' : '#64748b',
+                color: activeTab === tab ? '#0056b3' : '#64748b',
                 boxShadow: activeTab === tab ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
               }}
             >

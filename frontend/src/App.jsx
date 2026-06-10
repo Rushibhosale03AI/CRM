@@ -17,6 +17,7 @@ import Calendar from './pages/Calendar';
 import Meetings from './pages/Meetings';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import AdminApprovals from './pages/AdminApprovals';
 import AdminEODReports from './pages/AdminEODReports';
 import { AuthProvider, AuthContext } from './context/AuthContext';
@@ -46,6 +47,7 @@ const ProtectedRoutes = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );

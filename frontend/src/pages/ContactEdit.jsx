@@ -157,7 +157,7 @@ const ContactEdit = () => {
           </button>
           <button 
             onClick={handleSave}
-            style={{ padding: '8px 16px', backgroundColor: '#14b8a6', border: 'none', borderRadius: '6px', color: '#ffffff', fontWeight: 500, cursor: 'pointer' }}>
+            style={{ padding: '8px 16px', backgroundColor: '#007bff', border: 'none', borderRadius: '6px', color: '#ffffff', fontWeight: 500, cursor: 'pointer' }}>
             Save
           </button>
         </div>

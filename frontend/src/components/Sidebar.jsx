@@ -3,10 +3,12 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { Home, Users, Search, Contact, Calendar, CheckSquare, Inbox, PhoneCall, Video, Settings, ChevronDown, ChevronRight, Circle, ShieldCheck, FileText } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { useContext } from 'react';
+import logoImg from '../assets/datatech_logo.png';
 
 const Sidebar = () => {
   const [hoveredPath, setHoveredPath] = useState(null);
   const [isDashboardExpanded, setIsDashboardExpanded] = useState(true);
+  const [isTeamHovered, setIsTeamHovered] = useState(false);
   const location = useLocation();
 
   const isCrmActive = location.pathname === '/';
@@ -39,34 +41,13 @@ const Sidebar = () => {
       display: 'flex',
       flexDirection: 'column',
       flexShrink: 0,
-      position: 'sticky',
-      top: 0,
-      overflowY: 'auto',
-      boxShadow: '4px 0 24px rgba(0,0,0,0.02)',
       zIndex: 20
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '24px 24px 24px 24px' }}>
-        <div style={{
-          width: '36px',
-          height: '36px',
-          borderRadius: '8px',
-          background: 'linear-gradient(135deg, #2dd4bf, #0d9488)',
-          color: 'white',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontWeight: 'bold',
-          fontSize: '20px',
-          boxShadow: '0 4px 6px -1px rgba(20, 184, 166, 0.2)'
-        }}>
-          <span style={{ transform: 'rotate(-45deg)' }}>&#x221E;</span>
-        </div>
-        <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#1e293b', letterSpacing: '-0.025em' }}>
-          TDTL <span style={{ fontSize: '12px', fontWeight: 500, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginLeft: '4px' }}>CRM</span>
-        </span>
+      <div style={{ padding: '28px 24px 16px 24px', flexShrink: 0, display: 'flex', justifyContent: 'center' }}>
+        <img src={logoImg} alt="The DataTech Labs Logo" style={{ width: '100%', maxWidth: '180px', height: 'auto', objectFit: 'contain' }} />
       </div>
 
-      <nav style={{ flex: 1, padding: '8px 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <nav style={{ flex: 1, padding: '8px 16px', display: 'flex', flexDirection: 'column', gap: '6px', overflowY: 'auto' }}>
         
         {/* Dashboard Expandable Menu */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -178,9 +159,54 @@ const Sidebar = () => {
 
       </nav>
 
-      <div style={{ padding: '24px', borderTop: '1px solid #f1f5f9' }}>
-        <div style={{ marginTop: '16px', fontSize: '12px', color: '#94a3b8', textAlign: 'center', fontWeight: 500 }}>
-          © 2026 - CHL CRM. All Rights Reserved.
+      <div style={{ padding: '24px 16px', borderTop: '1px solid #f1f5f9', flexShrink: 0, textAlign: 'center' }}>
+        <div 
+          style={{ position: 'relative', textAlign: 'center' }}
+          onMouseEnter={() => setIsTeamHovered(true)}
+          onMouseLeave={() => setIsTeamHovered(false)}
+        >
+          <span style={{ 
+            fontSize: '13px', 
+            color: isTeamHovered ? '#0f766e' : '#64748b', 
+            cursor: 'pointer', 
+            transition: 'color 0.2s',
+            fontWeight: 600
+          }}>
+            Developed by Team Unit One
+          </span>
+          {isTeamHovered && (
+            <div style={{
+              position: 'absolute',
+              bottom: '100%',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              marginBottom: '12px',
+              backgroundColor: '#1e293b',
+              color: '#ffffff',
+              padding: '8px 12px',
+              borderRadius: '6px',
+              fontSize: '12px',
+              whiteSpace: 'normal',
+              width: 'max-content',
+              maxWidth: '220px',
+              lineHeight: '1.4',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+              zIndex: 50,
+              fontWeight: 500,
+              animation: 'fadeIn 0.2s ease-out'
+            }}>
+              Kartik Tambat, Ajay Shinde, Sonali Dalvi, Ashwini Takik, Supriya Shelke, Ishwari Lambkhade, Rushikesh Bhosale
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                borderWidth: '5px',
+                borderStyle: 'solid',
+                borderColor: '#1e293b transparent transparent transparent'
+              }} />
+            </div>
+          )}
         </div>
       </div>
     </aside>

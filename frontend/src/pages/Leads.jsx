@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import DataTable from '../components/DataTable';
 import { Edit, Trash2, ChevronDown, Plus, Filter, User, CheckCircle2, XCircle, Download, Upload, List } from 'lucide-react';
 import apiClient from '../api/apiClient';
+import PageSearchBar from '../components/PageSearchBar';
 
 const Leads = () => {
   const [leads, setLeads] = useState([]);
@@ -12,6 +13,16 @@ const Leads = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const searchQuery = (searchParams.get('q') || '').toLowerCase();
+  const searchField = searchParams.get('field') || 'all';
+
+  const leadSearchOptions = [
+    { label: 'Industry', value: 'industry' },
+    { label: 'Contact Name', value: 'contact_name' },
+    { label: 'Company Name', value: 'company_name' },
+    { label: 'Email Address', value: 'email_address' },
+    { label: 'Contact No', value: 'contact_no' },
+    { label: 'Designation', value: 'designation' }
+  ];
 
   useEffect(() => {
     fetchLeads();
@@ -118,12 +129,19 @@ const Leads = () => {
 
   const filteredLeads = leads.filter(lead => {
     if (searchQuery) {
-      const match = (
-        (lead.contact_name || '').toLowerCase().includes(searchQuery) ||
-        (lead.company_name || '').toLowerCase().includes(searchQuery) ||
-        (lead.email_address || '').toLowerCase().includes(searchQuery) ||
-        (lead.contact_no || '').toLowerCase().includes(searchQuery)
-      );
+      let match = false;
+      if (searchField === 'all') {
+        match = (
+          (lead.contact_name || '').toLowerCase().includes(searchQuery) ||
+          (lead.company_name || '').toLowerCase().includes(searchQuery) ||
+          (lead.email_address || '').toLowerCase().includes(searchQuery) ||
+          (lead.contact_no || '').toLowerCase().includes(searchQuery) ||
+          (lead.industry || '').toLowerCase().includes(searchQuery) ||
+          (lead.designation || '').toLowerCase().includes(searchQuery)
+        );
+      } else {
+        match = (lead[searchField] || '').toLowerCase().includes(searchQuery);
+      }
       if (!match) return false;
     }
 
@@ -153,6 +171,10 @@ const Leads = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '100%', margin: '0 auto' }}>
       
+      <div style={{ marginBottom: '-8px' }}>
+        <PageSearchBar placeholder="Search leads..." searchOptions={leadSearchOptions} />
+      </div>
+
       {/* Top Action Bar */}
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '16px', backgroundColor: '#ffffff', padding: '16px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         

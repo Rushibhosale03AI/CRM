@@ -1,29 +1,56 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Search, Bell, Settings, LogOut } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useContext, useRef } from 'react';
+import { Bell, Settings, LogOut } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { AuthContext } from '../context/AuthContext';
 import apiClient from '../api/apiClient';
 import EODReportModal from './EODReportModal';
 
 const Navbar = () => {
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [hoveredIcon, setHoveredIcon] = useState(null);
   const [isEodModalOpen, setIsEodModalOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const notificationRef = useRef(null);
   const [todayEvents, setTodayEvents] = useState([]);
   const [rungEvents, setRungEvents] = useState(new Set());
-  const [searchParams, setSearchParams] = useSearchParams();
-  const searchQuery = searchParams.get('q') || '';
+  const location = useLocation();
   const { user, logout } = useContext(AuthContext);
+
+  const getPageTitle = () => {
+    const path = location.pathname;
+    if (path === '/') return 'Dashboard';
+    if (path.startsWith('/customers')) return 'Customers';
+    if (path.startsWith('/leads')) return 'Leads';
+    if (path.startsWith('/contacts')) return 'Contacts';
+    if (path.startsWith('/calendar')) return 'Calendar';
+    if (path.startsWith('/todos')) return 'To-dos';
+    if (path.startsWith('/calls')) return 'Calls';
+    if (path.startsWith('/meetings')) return 'Meetings';
+    if (path.startsWith('/inbox')) return 'Inbox';
+    if (path.startsWith('/admin/approvals')) return 'User Approvals';
+    if (path.startsWith('/admin/eod-reports')) return 'EOD Reports';
+    if (path.startsWith('/settings')) return 'Settings';
+    return '';
+  };
 
   useEffect(() => {
     const fetchTodayEvents = async () => {
       try {
         const [callsRes, meetingsRes, todosRes] = await Promise.all([
-          apiClient.get('/calls/'),
-          apiClient.get('/meetings/'),
-          apiClient.get('/todos/')
+          apiClient.get('/calls/').catch(() => ({ data: [] })),
+          apiClient.get('/meetings/').catch(() => ({ data: [] })),
+          apiClient.get('/todos/').catch(() => ({ data: [] }))
         ]);
+        
+        let pendingUsersRes = { data: [] };
+        if (user?.role === 'Admin') {
+          try {
+            pendingUsersRes = await apiClient.get('/auth/pending-users/');
+          } catch (e) {
+            console.error("Error fetching pending users", e);
+          }
+        }
         
         const allEvents = [];
         const today = new Date();
@@ -42,6 +69,16 @@ const Navbar = () => {
         (meetingsRes.data || []).forEach(m => checkDate(m.from_date, 'Meeting', m.title, `meeting-${m.id}`));
         (todosRes.data || []).forEach(t => checkDate(t.due_date, 'To-do', t.title, `todo-${t.id}`));
         
+        (pendingUsersRes.data || []).forEach(u => {
+           allEvents.push({
+             id: `pending-${u.id}`,
+             type: 'Approval',
+             title: `Pending User: ${u.name || u.email}`,
+             time: 'Action Required',
+             timestamp: 0 
+           });
+        });
+
         setTodayEvents(allEvents);
       } catch (err) {
         console.error("Error fetching notifications", err);
@@ -52,6 +89,16 @@ const Navbar = () => {
     const interval = setInterval(fetchTodayEvents, 60 * 1000);
     return () => clearInterval(interval);
   }, [user]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (todayEvents.length === 0) return;
@@ -112,17 +159,6 @@ const Navbar = () => {
     }
   };
 
-  const handleSearchChange = (e) => {
-    const val = e.target.value;
-    const newParams = new URLSearchParams(searchParams);
-    if (val) {
-      newParams.set('q', val);
-    } else {
-      newParams.delete('q');
-    }
-    setSearchParams(newParams);
-  };
-
   return (
     <header style={{
       backgroundColor: 'rgba(255, 255, 255, 0.8)',
@@ -136,46 +172,18 @@ const Navbar = () => {
       position: 'sticky',
       top: 0,
       zIndex: 10,
+      flexShrink: 0,
       boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.05)'
     }}>
-      <div style={{ flex: 1, maxWidth: '576px' }}>
-        <div style={{ position: 'relative' }}>
-          <Search style={{
-            position: 'absolute',
-            left: '14px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            width: '16px',
-            height: '16px',
-            color: isSearchFocused ? '#14b8a6' : '#94a3b8',
-            transition: 'color 0.2s'
-          }} />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            placeholder="Search leads, contacts, or CRM pages..."
-            onFocus={() => setIsSearchFocused(true)}
-            onBlur={() => setIsSearchFocused(false)}
-            style={{
-              width: '100%',
-              padding: '8px 16px 8px 40px',
-              backgroundColor: isSearchFocused ? '#ffffff' : 'rgba(241, 245, 249, 0.5)',
-              border: `1px solid ${isSearchFocused ? '#14b8a6' : 'transparent'}`,
-              borderRadius: '12px',
-              fontSize: '14px',
-              outline: 'none',
-              boxShadow: isSearchFocused ? '0 0 0 2px rgba(20, 184, 166, 0.2)' : 'none',
-              transition: 'all 0.2s',
-              color: '#334155'
-            }}
-          />
-        </div>
+      <div style={{ flex: 1 }}>
+        <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold', color: '#1e293b' }}>
+          {getPageTitle()}
+        </h1>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderRight: '1px solid #e2e8f0', paddingRight: '20px' }}>
-          <div style={{ position: 'relative' }}>
+          <div ref={notificationRef} style={{ position: 'relative' }}>
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
               onMouseEnter={() => setHoveredIcon('bell')}
@@ -221,13 +229,23 @@ const Navbar = () => {
                 overflow: 'hidden'
               }}>
                 <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
-                  <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: '#1e293b' }}>Today's Reminders</h3>
-                  <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>You have {todayEvents.length} tasks scheduled for today.</p>
+                  <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: '#1e293b' }}>Notifications & Reminders</h3>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>You have {todayEvents.length} pending items.</p>
                 </div>
                 <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
                   {todayEvents.length > 0 ? todayEvents.map((evt, i) => (
                     <div key={i} style={{ padding: '12px 16px', borderBottom: i !== todayEvents.length - 1 ? '1px solid #f1f5f9' : 'none', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                      <div style={{ padding: '6px', backgroundColor: evt.type === 'Call' ? '#dcfce7' : evt.type === 'Meeting' ? '#ede9fe' : '#e0f2fe', color: evt.type === 'Call' ? '#16a34a' : evt.type === 'Meeting' ? '#7c3aed' : '#0284c7', borderRadius: '8px', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', minWidth: '55px', textAlign: 'center' }}>
+                      <div style={{ 
+                        padding: '6px', 
+                        backgroundColor: evt.type === 'Call' ? '#dcfce7' : evt.type === 'Meeting' ? '#ede9fe' : evt.type === 'Approval' ? '#ffedd5' : '#e0f2fe', 
+                        color: evt.type === 'Call' ? '#16a34a' : evt.type === 'Meeting' ? '#7c3aed' : evt.type === 'Approval' ? '#ea580c' : '#0056b3', 
+                        borderRadius: '8px', 
+                        fontSize: '10px', 
+                        fontWeight: 'bold', 
+                        textTransform: 'uppercase', 
+                        minWidth: '55px', 
+                        textAlign: 'center' 
+                      }}>
                         {evt.type}
                       </div>
                       <div style={{ flex: 1 }}>
@@ -268,7 +286,7 @@ const Navbar = () => {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              backgroundColor: '#0ea5e9',
+              backgroundColor: '#14b8a6',
               color: '#ffffff',
               border: 'none',
               borderRadius: '8px',
@@ -279,8 +297,8 @@ const Navbar = () => {
               boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
               transition: 'background-color 0.2s',
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0284c7'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0ea5e9'}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0d9488'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#14b8a6'}
           >
             EOD Report
           </button>
@@ -320,7 +338,7 @@ const Navbar = () => {
             }}></div>
           </div>
           <button 
-            onClick={logout}
+            onClick={() => setIsLogoutModalOpen(true)}
             style={{ marginLeft: '12px', padding: '8px', color: '#ef4444', backgroundColor: '#fee2e2', border: 'none', borderRadius: '50%', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             title="Logout"
           >
@@ -333,6 +351,87 @@ const Navbar = () => {
         isOpen={isEodModalOpen} 
         onClose={() => setIsEodModalOpen(false)} 
       />
+
+      {isLogoutModalOpen && createPortal(
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.4)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            padding: '24px',
+            width: '100%',
+            maxWidth: '400px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            textAlign: 'center',
+            animation: 'fadeIn 0.2s ease-out'
+          }}>
+            <div style={{
+              width: '48px', height: '48px',
+              backgroundColor: '#fee2e2',
+              color: '#ef4444',
+              borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 16px'
+            }}>
+              <LogOut style={{ width: '24px', height: '24px' }} />
+            </div>
+            <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 'bold', color: '#1e293b' }}>Confirm Logout</h2>
+            <p style={{ margin: '0 0 24px 0', fontSize: '14px', color: '#64748b', lineHeight: '1.5' }}>
+              Are you sure you want to log out of your account? You will need to sign in again to access the dashboard.
+            </p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button 
+                onClick={() => setIsLogoutModalOpen(false)}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#f1f5f9',
+                  color: '#475569',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  flex: 1,
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e2e8f0'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => {
+                  setIsLogoutModalOpen(false);
+                  logout();
+                }}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#ef4444',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  flex: 1,
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </header>
   );
 };

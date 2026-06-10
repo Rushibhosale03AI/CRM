@@ -3,6 +3,7 @@ import DataTable from '../components/DataTable';
 import { Edit, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../api/apiClient';
+import PageSearchBar from '../components/PageSearchBar';
 
 const Contacts = () => {
   const [contacts, setContacts] = useState([]);
@@ -72,6 +73,10 @@ const Contacts = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '100%', margin: '0 auto' }}>
       
+      <div style={{ marginBottom: '-8px' }}>
+        <PageSearchBar placeholder="Search contacts..." />
+      </div>
+
       <div style={{
         display: 'flex',
         alignItems: 'center',

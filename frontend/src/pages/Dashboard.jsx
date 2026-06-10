@@ -3,6 +3,7 @@ import { ChevronDown, ArrowUpRight } from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { AuthContext } from '../context/AuthContext';
 import apiClient from '../api/apiClient';
+import PageSearchBar from '../components/PageSearchBar';
 
 const sparklineDataRed = [
   { value: 100 }, { value: 120 }, { value: 80 }, { value: 90 }, { value: 40 }, { value: 30 }
@@ -116,6 +117,10 @@ const Dashboard = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '100%', margin: '0 auto' }}>
       
+      <div style={{ marginBottom: '-8px' }}>
+        <PageSearchBar placeholder="Search dashboard..." />
+      </div>
+
       {/* Top Banner */}
       <div style={{
         backgroundColor: '#f8fafc',
@@ -238,7 +243,7 @@ const Dashboard = () => {
               <span><strong style={{ color: '#334155' }}>{contactsCount}</strong> Total Contacts</span>
             </div>
             <div style={{ width: '100%', height: '6px', backgroundColor: '#bae6fd', borderRadius: '3px', overflow: 'hidden', display: 'flex' }}>
-              <div style={{ width: '27%', height: '100%', backgroundColor: '#0ea5e9' }}></div>
+              <div style={{ width: '27%', height: '100%', backgroundColor: '#007bff' }}></div>
             </div>
           </div>
         </div>

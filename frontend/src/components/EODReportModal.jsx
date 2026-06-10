@@ -211,7 +211,7 @@ const EODReportModal = ({ isOpen, onClose }) => {
               type="submit" 
               form="eod-form"
               disabled={isSubmitting}
-              style={{ padding: '8px 16px', borderRadius: '6px', border: 'none', backgroundColor: '#0ea5e9', color: '#ffffff', fontSize: '14px', fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', opacity: isSubmitting ? 0.7 : 1 }}
+              style={{ padding: '8px 16px', borderRadius: '6px', border: 'none', backgroundColor: '#007bff', color: '#ffffff', fontSize: '14px', fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', opacity: isSubmitting ? 0.7 : 1 }}
             >
               {isSubmitting ? 'Submitting...' : (
                 <>

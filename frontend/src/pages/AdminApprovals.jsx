@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import apiClient from '../api/apiClient';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import PageSearchBar from '../components/PageSearchBar';
 
 const AdminApprovals = () => {
   const [pendingUsers, setPendingUsers] = useState([]);
@@ -43,6 +44,10 @@ const AdminApprovals = () => {
 
   return (
     <div>
+      <div style={{ marginBottom: '16px' }}>
+        <PageSearchBar placeholder="Search approvals..." />
+      </div>
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1e293b' }}>Pending User Approvals</h1>
       </div>
@@ -70,7 +75,7 @@ const AdminApprovals = () => {
                   <td style={{ padding: '16px', color: '#475569' }}>{user.username}</td>
                   <td style={{ padding: '16px', color: '#475569' }}>{user.email}</td>
                   <td style={{ padding: '16px', color: '#475569' }}>
-                    <span style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: '500', backgroundColor: '#eff6ff', color: '#2563eb' }}>
+                    <span style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: '500', backgroundColor: '#eff6ff', color: '#007bff' }}>
                       {user.role}
                     </span>
                   </td>

@@ -4,6 +4,7 @@ import { Edit, Trash2, CheckCircle2, ChevronDown, Plus, Filter, LayoutGrid, X } 
 
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../api/apiClient';
+import PageSearchBar from '../components/PageSearchBar';
 
 const Calls = () => {
   const [calls, setCalls] = useState([]);
@@ -79,6 +80,10 @@ const Calls = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '100%', margin: '0 auto' }}>
       
+      <div style={{ marginBottom: '-8px' }}>
+        <PageSearchBar placeholder="Search calls..." />
+      </div>
+
       {/* Top Action Bar */}
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '16px', backgroundColor: '#ffffff', padding: '16px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         

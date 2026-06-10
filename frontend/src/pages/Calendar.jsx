@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Calendar as CalIcon, Plus } from 'lucide-rea
 import { AuthContext } from '../context/AuthContext';
 import apiClient from '../api/apiClient';
 import AddEventModal from '../components/AddEventModal';
+import PageSearchBar from '../components/PageSearchBar';
 
 const Calendar = () => {
   const { user } = useContext(AuthContext);
@@ -112,7 +113,7 @@ const Calendar = () => {
         
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
           <span style={{ width: '100px', fontSize: '14px', color: '#64748b', fontWeight: 500 }}>Type</span>
-          <span style={{ padding: '4px 12px', backgroundColor: '#e0f2fe', color: '#0284c7', borderRadius: '4px', fontSize: '12px', fontWeight: 600 }}>Virtual</span>
+          <span style={{ padding: '4px 12px', backgroundColor: '#e0f2fe', color: '#0056b3', borderRadius: '4px', fontSize: '12px', fontWeight: 600 }}>Virtual</span>
         </div>
         
         <div style={{ display: 'flex', gap: '16px' }}>
@@ -123,7 +124,7 @@ const Calendar = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
           <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>Lead</span>
           <div style={{ padding: '12px', border: '1px solid #e0f2fe', borderRadius: '8px', backgroundColor: '#f0f9ff' }}>
-            <span style={{ color: '#0284c7', fontWeight: 600, fontSize: '14px' }}>Jignesh Patel</span>
+            <span style={{ color: '#0056b3', fontWeight: 600, fontSize: '14px' }}>Jignesh Patel</span>
           </div>
         </div>
       </div>
@@ -179,7 +180,13 @@ const Calendar = () => {
   const grid = generateGrid();
 
   return (
-    <div style={{ display: 'flex', height: '100%', gap: '24px', maxWidth: '100%', margin: '0 auto' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '100%', margin: '0 auto', height: '100%' }}>
+      
+      <div style={{ marginBottom: '-8px' }}>
+        <PageSearchBar placeholder="Search events..." />
+      </div>
+
+      <div style={{ display: 'flex', height: '100%', gap: '24px', maxWidth: '100%', margin: '0 auto' }}>
       
       {/* Main Calendar Area */}
       <div style={{ flex: 1, backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -195,7 +202,7 @@ const Calendar = () => {
               <div style={{ width: '12px', height: '12px', backgroundColor: '#22c55e', borderRadius: '2px' }}></div> Call
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 600, color: '#475569' }}>
-              <div style={{ width: '12px', height: '12px', backgroundColor: '#0ea5e9', borderRadius: '2px' }}></div> To-dos
+              <div style={{ width: '12px', height: '12px', backgroundColor: '#007bff', borderRadius: '2px' }}></div> To-dos
             </div>
           </div>
 
@@ -281,7 +288,7 @@ const Calendar = () => {
                           let color = '#ffffff';
                           if (evt.eventType === 'call') { bg = '#dcfce7'; color = '#16a34a'; }
                           if (evt.eventType === 'meeting') { bg = '#ede9fe'; color = '#7c3aed'; }
-                          if (evt.eventType === 'todo') { bg = '#e0f2fe'; color = '#0284c7'; }
+                          if (evt.eventType === 'todo') { bg = '#e0f2fe'; color = '#0056b3'; }
 
                           return (
                             <div 
@@ -341,7 +348,7 @@ const Calendar = () => {
                           let bg = '#ffffff'; let color = '#ffffff';
                           if (evt.eventType === 'call') { bg = '#dcfce7'; color = '#16a34a'; }
                           if (evt.eventType === 'meeting') { bg = '#ede9fe'; color = '#7c3aed'; }
-                          if (evt.eventType === 'todo') { bg = '#e0f2fe'; color = '#0284c7'; }
+                          if (evt.eventType === 'todo') { bg = '#e0f2fe'; color = '#0056b3'; }
                           return (
                             <div key={i} onClick={(e) => { e.stopPropagation(); setSelectedEvent(evt); }} style={{ padding: '8px', backgroundColor: bg, color: color, borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
                               {evt.displayTitle}
@@ -366,7 +373,7 @@ const Calendar = () => {
                   setSelectedDateForAdd(`${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`);
                   setIsAddModalOpen(true);
                 }}
-                style={{ padding: '8px 16px', backgroundColor: '#14b8a6', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+                style={{ padding: '8px 16px', backgroundColor: '#007bff', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
               >
                 <Plus style={{ width: '16px', height: '16px' }} /> Add Event
               </button>
@@ -376,7 +383,7 @@ const Calendar = () => {
                 let bg = '#ffffff'; let color = '#ffffff';
                 if (evt.eventType === 'call') { bg = '#dcfce7'; color = '#16a34a'; }
                 if (evt.eventType === 'meeting') { bg = '#ede9fe'; color = '#7c3aed'; }
-                if (evt.eventType === 'todo') { bg = '#e0f2fe'; color = '#0284c7'; }
+                if (evt.eventType === 'todo') { bg = '#e0f2fe'; color = '#0056b3'; }
                 return (
                   <div key={i} onClick={() => setSelectedEvent(evt)} style={{ padding: '16px', backgroundColor: bg, color: color, borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', border: `1px solid ${color}40` }}>
                     {evt.displayTitle}
@@ -392,7 +399,7 @@ const Calendar = () => {
                 let bg = '#ffffff'; let color = '#ffffff';
                 if (evt.eventType === 'call') { bg = '#dcfce7'; color = '#16a34a'; }
                 if (evt.eventType === 'meeting') { bg = '#ede9fe'; color = '#7c3aed'; }
-                if (evt.eventType === 'todo') { bg = '#e0f2fe'; color = '#0284c7'; }
+                if (evt.eventType === 'todo') { bg = '#e0f2fe'; color = '#0056b3'; }
                 return (
                   <div key={i} onClick={() => setSelectedEvent(evt)} style={{ padding: '16px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer' }}>
                     <div style={{ padding: '4px 8px', backgroundColor: bg, color: color, borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>{evt.eventType.toUpperCase()}</div>
@@ -419,6 +426,7 @@ const Calendar = () => {
         {selectedEvent ? renderEventDetails() : renderEmptyState()}
       </div>
 
+      </div>
     </div>
   );
 };

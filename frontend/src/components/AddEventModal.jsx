@@ -166,7 +166,7 @@ const AddEventModal = ({ isOpen, onClose, defaultDate, onSuccess }) => {
               <button 
                 type="submit"
                 disabled={loading}
-                style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: '#0ea5e9', color: '#ffffff', fontSize: '14px', fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.7 : 1 }}
+                style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: '#007bff', color: '#ffffff', fontSize: '14px', fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.7 : 1 }}
               >
                 {loading ? 'Saving...' : 'Save Event'}
               </button>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, MoreVertical, MessageSquare, PhoneCall, Star, Video, Image, Paperclip, Send, Smile } from 'lucide-react';
 import apiClient from '../api/apiClient';
+import PageSearchBar from '../components/PageSearchBar';
 
 const Inbox = () => {
   const [messages, setMessages] = useState([]);
@@ -25,6 +26,10 @@ const Inbox = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', maxWidth: '100%', margin: '0 auto', gap: '24px' }}>
       
+      <div style={{ marginBottom: '-8px' }}>
+        <PageSearchBar placeholder="Search inbox..." />
+      </div>
+
       {/* Container */}
       <div style={{ 
         display: 'flex', 
@@ -46,7 +51,7 @@ const Inbox = () => {
                 <button style={{ padding: '8px', borderRadius: '8px', border: '1px solid #e2e8f0', backgroundColor: '#ffffff', color: '#64748b', cursor: 'pointer' }}>
                   <Filter style={{ width: '16px', height: '16px' }} />
                 </button>
-                <button style={{ padding: '8px', borderRadius: '8px', backgroundColor: '#14b8a6', color: '#ffffff', border: 'none', cursor: 'pointer' }}>
+                <button style={{ padding: '8px', borderRadius: '8px', backgroundColor: '#007bff', color: '#ffffff', border: 'none', cursor: 'pointer' }}>
                   <MessageSquare style={{ width: '16px', height: '16px' }} />
                 </button>
               </div>
@@ -69,7 +74,7 @@ const Inbox = () => {
                   boxSizing: 'border-box',
                   transition: 'border-color 0.2s'
                 }}
-                onFocus={(e) => e.target.style.borderColor = '#14b8a6'}
+                onFocus={(e) => e.target.style.borderColor = '#007bff'}
                 onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
               />
             </div>
@@ -192,7 +197,7 @@ const Inbox = () => {
             {/* Sent Message */}
             <div style={{ display: 'flex', gap: '12px', maxWidth: '80%', alignSelf: 'flex-end', flexDirection: 'row-reverse' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
-                <div style={{ backgroundColor: '#14b8a6', color: '#ffffff', padding: '12px 16px', borderRadius: '16px 2px 16px 16px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', fontSize: '14px', lineHeight: '1.5' }}>
+                <div style={{ backgroundColor: '#007bff', color: '#ffffff', padding: '12px 16px', borderRadius: '16px 2px 16px 16px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', fontSize: '14px', lineHeight: '1.5' }}>
                   Hello Umesh! Sure, I will prepare the quotation right away. Do you have any specific brand preferences?
                 </div>
                 <span style={{ fontSize: '11px', color: '#94a3b8', marginRight: '4px' }}>10:45 AM</span>
@@ -228,7 +233,7 @@ const Inbox = () => {
                 }}
               />
               
-              <button style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#14b8a6', color: '#ffffff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(20, 184, 166, 0.3)', transition: 'transform 0.1s' }} onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'} onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+              <button style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#007bff', color: '#ffffff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(20, 184, 166, 0.3)', transition: 'transform 0.1s' }} onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'} onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}>
                 <Send style={{ width: '18px', height: '18px', marginLeft: '2px' }} />
               </button>
             </div>

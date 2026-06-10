@@ -3,6 +3,7 @@ import { Calendar as CalendarIcon, Filter, Search, Download, FileText, CheckCirc
 import apiClient from '../api/apiClient';
 import { AuthContext } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
+import PageSearchBar from '../components/PageSearchBar';
 
 const AdminEODReports = () => {
   const { user } = useContext(AuthContext);
@@ -72,6 +73,10 @@ const AdminEODReports = () => {
   return (
     <div style={{ padding: '32px', maxWidth: '1400px', margin: '0 auto', fontFamily: '"Inter", sans-serif' }}>
       
+      <div style={{ marginBottom: '16px' }}>
+        <PageSearchBar placeholder="Search EOD reports..." />
+      </div>
+
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>

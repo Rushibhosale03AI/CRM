@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DataTable from '../components/DataTable';
 import apiClient from '../api/apiClient';
+import PageSearchBar from '../components/PageSearchBar';
 
 const Todos = () => {
   const [todos, setTodos] = useState([]);
@@ -62,6 +63,10 @@ const Todos = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '100%', margin: '0 auto' }}>
       
+      <div style={{ marginBottom: '-8px' }}>
+        <PageSearchBar placeholder="Search to-dos..." />
+      </div>
+
       <div style={{
         display: 'flex',
         alignItems: 'center',
