@@ -1,0 +1,9 @@
+# Note: This is a Node.js project. Dependencies are natively managed via package.json using 'npm install'.
+# Below is a list of frontend dependencies extracted from package.json for your reference.
+
+axios==^1.17.0
+lucide-react==^1.17.0
+react==^19.2.6
+react-dom==^19.2.6
+react-router-dom==^7.17.0
+recharts==^3.8.1

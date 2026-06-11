@@ -84,7 +84,7 @@ const ProtectedRoutes = () => {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/crmtdtl">
         <ProtectedRoutes />
       </BrowserRouter>
     </AuthProvider>

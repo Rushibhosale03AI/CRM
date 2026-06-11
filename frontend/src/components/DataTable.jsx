@@ -74,7 +74,7 @@ const DataTable = ({ columns, data, onSelectAll, selectedIds }) => {
 
                   {columns.map((col, colIdx) => (
                     <td key={colIdx} style={{ padding: '12px 20px' }}>
-                      {col.render ? col.render(row) : <span style={{ fontWeight: 500, color: '#334155' }}>{row[col.accessor]}</span>}
+                      {col.render ? col.render(row, startIndex + rowIdx) : <span style={{ fontWeight: 500, color: '#334155' }}>{row[col.accessor]}</span>}
                     </td>
                   ))}
                 </tr>

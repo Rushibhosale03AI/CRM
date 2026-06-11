@@ -78,7 +78,7 @@ const CustomSelect = ({ label, name, value, onChange, options, placeholder, isRe
   );
 };
 
-const TextInput = ({ label, name, value, onChange, placeholder, isRequired, type = "text", error }) => (
+const TextInput = ({ label, name, value, onChange, placeholder, isRequired, type = "text", error, disabled }) => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
     <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>
       {label} {isRequired && <span style={{ color: '#ef4444' }}>*</span>}
@@ -89,13 +89,15 @@ const TextInput = ({ label, name, value, onChange, placeholder, isRequired, type
       value={value || ''}
       onChange={onChange}
       placeholder={placeholder}
+      disabled={disabled}
       style={{
         padding: '10px 14px',
         border: error ? '1px solid #ef4444' : '1px solid #cbd5e1',
         borderRadius: '8px',
         fontSize: '14px',
-        color: '#1e293b',
-        backgroundColor: '#ffffff',
+        color: disabled ? '#94a3b8' : '#1e293b',
+        backgroundColor: disabled ? '#f8fafc' : '#ffffff',
+        cursor: disabled ? 'not-allowed' : 'text',
         outline: 'none',
         boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
       }}
@@ -266,9 +268,9 @@ const LeadEdit = () => {
         <div style={{ marginBottom: '40px' }}>
           <h2 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b', marginBottom: '24px' }}>Core Information</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
-            <TextInput label="Industry" name="industry" value={formData.industry} onChange={handleChange} placeholder="Industry" />
-            <TextInput label="Contact Name" name="contact_name" value={formData.contact_name} onChange={handleChange} placeholder="Contact Name" />
-            <TextInput label="Company Name" name="company_name" value={formData.company_name} onChange={handleChange} placeholder="Company Name" />
+            <TextInput label="Industry" name="industry" value={formData.industry} onChange={handleChange} placeholder="Industry" disabled={!!id} />
+            <TextInput label="Contact Name" name="contact_name" value={formData.contact_name} onChange={handleChange} placeholder="Contact Name" disabled={!!id} />
+            <TextInput label="Company Name" name="company_name" value={formData.company_name} onChange={handleChange} placeholder="Company Name" disabled={!!id} />
             <TextInput label="Email Address" name="email_address" value={formData.email_address} onChange={handleChange} placeholder="Email" />
             <TextInput label="Contact No" name="contact_no" value={formData.contact_no} onChange={handleChange} placeholder="Number" error={errors.contact_no} />
             <TextInput label="Designation" name="designation" value={formData.designation} onChange={handleChange} placeholder="Designation" />

@@ -99,6 +99,10 @@ const Leads = () => {
 
   const columns = [
     { 
+      header: 'Sr. No.', 
+      render: (row, index) => <div style={{ fontWeight: 500, color: '#334155' }}>{index + 1}</div>
+    },
+    { 
       header: 'Action', 
       render: (row) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
