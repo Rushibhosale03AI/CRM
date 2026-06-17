@@ -28,6 +28,27 @@ class Lead(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        
+        # Check conversion criteria
+        demo = str(self.demo_call).strip().lower()
+        proposal = str(self.proposal_sent).strip().lower()
+        closure = str(self.closures).strip().lower()
+        
+        if demo == 'yes' and proposal == 'yes' and 'won' in closure:
+            # Avoid circular import issues by importing inline if needed, or just use Customer
+            if not Customer.objects.filter(lead=self).exists():
+                Customer.objects.create(
+                    name=self.company_name or self.contact_name or "Unknown Customer",
+                    customer_owner=self.ae_assigned,
+                    industry=self.industry,
+                    lead=self,
+                    mobile=self.contact_no,
+                    email=self.email_address,
+                    status='Active'
+                )
+
     def __str__(self):
         return f"{self.contact_name or 'Unknown Contact'} ({self.company_name or 'No Company'})"
 

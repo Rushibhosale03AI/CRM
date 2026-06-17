@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, X } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../api/apiClient';
@@ -30,11 +30,24 @@ const CustomInput = ({ label, name, value, onChange, placeholder, isRequired }) 
 
 const CustomSelect = ({ label, name, value, onChange, options, placeholder, isRequired }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const selectRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   
   if (loading) return <Loader message="Loading ContactEdit..." />;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
+    <div ref={selectRef} style={{ display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
       <label style={{ fontSize: '14px', fontWeight: 500, color: '#334155' }}>
         {label} {isRequired && <span style={{ color: '#ef4444' }}>*</span>}
       </label>

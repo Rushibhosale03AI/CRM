@@ -46,16 +46,16 @@ const DataTable = ({ columns, data, onSelectAll, selectedIds, rowsPerPage = 10 }
       <div style={{ overflow: 'auto', flex: 1 }}>
         <table style={{ width: '100%', textAlign: 'left', fontSize: '14px', whiteSpace: 'nowrap', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ color: '#1e293b', fontSize: '12px', textTransform: 'uppercase' }}>
+            <tr style={{ color: '#ffffff', fontSize: '13px', textTransform: 'uppercase' }}>
               {columns.map((col, idx) => (
                 <th key={idx} style={{ 
-                  padding: '16px 20px', fontWeight: 700, letterSpacing: '0.05em',
-                  position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#f1f5f9',
-                  borderBottom: '2px solid #e2e8f0'
+                  padding: '16px 20px', fontWeight: 'bold', letterSpacing: '0.05em',
+                  position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#1e293b',
+                  borderBottom: '2px solid #0f172a'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
                     {col.header}
-                    <svg style={{ width: '16px', height: '16px', color: '#94a3b8', marginLeft: '8px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
+                    <svg style={{ width: '16px', height: '16px', color: '#cbd5e1', marginLeft: '8px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
                   </div>
                 </th>
               ))}

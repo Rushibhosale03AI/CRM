@@ -153,7 +153,6 @@ const Settings = () => {
     <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
       <div>
-        <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1e293b', margin: '0 0 8px 0' }}>Settings</h1>
         <p style={{ color: '#64748b', margin: 0, fontSize: '15px' }}>Manage your account settings and preferences.</p>
       </div>
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { ChevronDown, X } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../api/apiClient';
@@ -7,9 +7,22 @@ import Loader from '../components/Loader';
 
 const CustomSelect = ({ label, name, value, onChange, options, placeholder, isRequired, hasClear, disabled }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const selectRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', position: 'relative' }}>
+    <div ref={selectRef} style={{ display: 'flex', flexDirection: 'column', gap: '6px', position: 'relative' }}>
       <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>
         {label} {isRequired && <span style={{ color: '#ef4444' }}>*</span>}
       </label>

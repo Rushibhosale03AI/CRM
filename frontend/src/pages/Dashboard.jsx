@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ChevronDown, ArrowUpRight } from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { AuthContext } from '../context/AuthContext';
@@ -23,6 +24,7 @@ const pieData = [
 const Dashboard = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   
   const [leadsData, setLeadsData] = useState({ count: 0, active: 0, dead: 0, closed: 0 });
@@ -58,9 +60,13 @@ const Dashboard = () => {
         });
         setLeadsData({ count: leads.length, active, dead, closed });
         
-        const customers = customersRes.data || [];
-        const activeCustomers = customers.filter(c => c.status === 'Active').length;
-        setCustomersData({ total: customers.length, active: activeCustomers });
+        const actualCustomersList = leads.filter(lead => {
+          const demo = (lead.demo_call || '').toLowerCase().trim();
+          const proposal = (lead.proposal_sent || '').toLowerCase().trim();
+          const closureStatus = (lead.closures || '').toLowerCase();
+          return demo === 'yes' && proposal === 'yes' && closureStatus.includes('won');
+        });
+        setCustomersData({ total: actualCustomersList.length, active: actualCustomersList.length });
         
         const validContacts = leads.filter(l => l.contact_no && l.contact_no.trim() !== '').length;
         setContactsCount(validContacts);
@@ -167,7 +173,10 @@ const Dashboard = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
         
         {/* Leads Card */}
-        <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div 
+          onClick={() => navigate('/leads')}
+          style={{ backgroundColor: '#ffffff', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', cursor: 'pointer', transition: 'transform 0.2s', ':hover': { transform: 'translateY(-2px)' } }}
+        >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
             <h3 style={{ fontSize: '15px', color: '#475569', fontWeight: 600, margin: 0 }}>Leads</h3>
             <ArrowUpRight style={{ width: '16px', height: '16px', color: '#94a3b8' }} />
@@ -198,14 +207,17 @@ const Dashboard = () => {
         </div>
 
         {/* Customer Card */}
-        <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div 
+          onClick={() => navigate('/customers')}
+          style={{ backgroundColor: '#ffffff', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', cursor: 'pointer', transition: 'transform 0.2s', ':hover': { transform: 'translateY(-2px)' } }}
+        >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
             <h3 style={{ fontSize: '15px', color: '#475569', fontWeight: 600, margin: 0 }}>Customer</h3>
             <ArrowUpRight style={{ width: '16px', height: '16px', color: '#94a3b8' }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
             <div>
-              <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#1e293b', margin: '8px 0' }}>{leadsData.active}</div>
+              <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#1e293b', margin: '8px 0' }}>{customersData.total}</div>
               <div style={{ fontSize: '12px', color: '#64748b' }}>
                 <span style={{ color: '#10b981', fontWeight: 600 }}>Total Customers</span> dynamically loaded
               </div>
@@ -220,7 +232,7 @@ const Dashboard = () => {
           </div>
           <div style={{ marginTop: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b', marginBottom: '8px', fontWeight: 500 }}>
-              <span><strong style={{ color: '#334155' }}>{leadsData.active}</strong> Active Customers</span>
+              <span><strong style={{ color: '#334155' }}>{customersData.active}</strong> Active Customers</span>
             </div>
             <div style={{ width: '100%', height: '6px', backgroundColor: '#bfdbfe', borderRadius: '3px', overflow: 'hidden', display: 'flex' }}>
               <div style={{ width: '47%', height: '100%', backgroundColor: '#1d4ed8' }}></div>

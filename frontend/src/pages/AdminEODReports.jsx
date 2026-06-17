@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Calendar as CalendarIcon, Filter, Search, Download, FileText, CheckCircle, Clock } from 'lucide-react';
+import { Calendar as CalendarIcon, Filter, Search, Download, FileText, CheckCircle, Clock, X } from 'lucide-react';
 import apiClient from '../api/apiClient';
 import { AuthContext } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -27,14 +27,17 @@ const AdminEODReports = () => {
       
       setAllFetchedReports(allReports);
       
-      // Extract unique users
-      const usersMap = {};
-      allReports.forEach(r => {
-        if (r.user_details && r.user_details.name) {
-          usersMap[r.user_details.name] = r.user_details;
+      // Fetch all users directly from backend so the dropdown is always populated
+      if (user?.role === 'Admin') {
+        try {
+          const usersRes = await apiClient.get('/auth/users/');
+          // Filter to show only sales reps or all active users. 
+          // Usually we want to show all active users that can have reports.
+          setUniqueUsers(usersRes.data || []);
+        } catch (e) {
+          console.error("Error fetching users for dropdown", e);
         }
-      });
-      setUniqueUsers(Object.values(usersMap));
+      }
       
       applyFilters(allReports, filterDate, filterUser);
     } catch (err) {
@@ -92,56 +95,62 @@ const AdminEODReports = () => {
         </div>
         
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <div style={{ position: 'relative' }}>
-            <Filter style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#64748b' }} />
-            <select
-              value={filterUser}
-              onChange={(e) => setFilterUser(e.target.value)}
-              style={{
-                padding: '10px 16px 10px 36px',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                fontSize: '14px',
-                color: '#334155',
-                outline: 'none',
-                cursor: 'pointer',
-                backgroundColor: '#ffffff',
-                appearance: 'none',
-                minWidth: '200px'
-              }}
-            >
-              <option value="">All Representatives</option>
-              {uniqueUsers.map(u => (
-                <option key={u.id || u.name} value={u.name}>{u.name}</option>
-              ))}
-            </select>
-          </div>
+          {user?.role === 'Admin' && (
+            <div style={{ position: 'relative' }}>
+              <Filter style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#64748b' }} />
+              <select
+                value={filterUser}
+                onChange={(e) => setFilterUser(e.target.value)}
+                style={{
+                  padding: '10px 16px 10px 36px',
+                  borderRadius: '8px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '14px',
+                  color: '#334155',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: '#ffffff',
+                  appearance: 'none',
+                  minWidth: '200px'
+                }}
+              >
+                <option value="">All Representatives</option>
+                {uniqueUsers.map(u => (
+                  <option key={u.id || u.name} value={u.name}>{u.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div style={{ position: 'relative' }}>
             <CalendarIcon style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#64748b' }} />
             <input 
               type="date"
               value={filterDate}
               onChange={(e) => setFilterDate(e.target.value)}
+              disabled={user?.role === 'Admin' && !filterUser}
               style={{
-                padding: '10px 16px 10px 36px',
+                padding: '10px 48px 10px 36px',
                 borderRadius: '8px',
                 border: '1px solid #cbd5e1',
                 fontSize: '14px',
                 color: '#334155',
                 outline: 'none',
-                cursor: 'pointer'
+                cursor: (user?.role === 'Admin' && !filterUser) ? 'not-allowed' : 'pointer',
+                backgroundColor: (user?.role === 'Admin' && !filterUser) ? '#f1f5f9' : '#ffffff',
+                opacity: (user?.role === 'Admin' && !filterUser) ? 0.7 : 1
               }}
+              title={(user?.role === 'Admin' && !filterUser) ? "Please select a representative first" : ""}
             />
-            {filterDate && (
+            {filterDate && (user?.role !== 'Admin' || filterUser) && (
               <button 
                 onClick={() => setFilterDate('')}
                 style={{
-                  position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
-                  background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '12px', padding: '4px'
+                  position: 'absolute', right: '32px', top: '50%', transform: 'translateY(-50%)',
+                  background: '#f1f5f9', border: 'none', color: '#64748b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2px', borderRadius: '50%'
                 }}
-                title="Clear Date Filter"
+                title="Clear Date"
               >
-                ✕
+                <X style={{ width: '12px', height: '12px' }} />
               </button>
             )}
           </div>

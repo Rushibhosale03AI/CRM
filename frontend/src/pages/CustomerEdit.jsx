@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   ChevronDown, X, Layout, Activity, StickyNote, Paperclip, Contact, Mail, MoreVertical, Calendar, PhoneCall
 } from 'lucide-react';
@@ -32,11 +32,24 @@ const CustomInput = ({ label, name, value, onChange, placeholder, isRequired }) 
 
 const CustomSelect = ({ label, name, value, onChange, options, placeholder, isRequired }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const selectRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   
   if (loading) return <Loader message="Loading CustomerEdit..." />;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
+    <div ref={selectRef} style={{ display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
       <label style={{ fontSize: '14px', fontWeight: 500, color: '#334155' }}>
         {label} {isRequired && <span style={{ color: '#ef4444' }}>*</span>}
       </label>

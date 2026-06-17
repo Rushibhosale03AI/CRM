@@ -9,7 +9,6 @@ import Loader from '../components/Loader';
 const Customer = () => {
   const [leads, setLeads] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [activeTab, setActiveTab] = useState('All Active');
   const [filterDate, setFilterDate] = useState('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -81,14 +80,16 @@ const Customer = () => {
     { header: 'Proposal Sent', accessor: 'proposal_sent' }
   ];
 
-  // 1. Only show "Active" leads
+  // 1. Only show "Customer" leads (Demo Call=yes, Proposal Sent=yes, Closure contains won)
   const activeLeads = leads.filter(lead => {
+    const demo = (lead.demo_call || '').toLowerCase().trim();
+    const proposal = (lead.proposal_sent || '').toLowerCase().trim();
     const closureStatus = (lead.closures || '').toLowerCase();
-    const outcome = (lead.outcome || '').toLowerCase();
-    return !closureStatus.includes('won') && !closureStatus.includes('lost') && !closureStatus.includes('closed') && !closureStatus.includes('dead') && !outcome.includes('not qualified');
+    
+    return demo === 'yes' && proposal === 'yes' && closureStatus.includes('won');
   });
 
-  // 2. Apply Filters (Follow-up, Pending, Date)
+  // 2. Apply Filters (Date)
   const filteredData = activeLeads.filter(lead => {
     // Date filter
     if (filterDate) {
@@ -97,22 +98,6 @@ const Customer = () => {
       const convoDate = lead.conversation_time ? new Date(lead.conversation_time).toISOString().split('T')[0] : '';
       
       if (createdAt !== filterDate && meetingDate !== filterDate && convoDate !== filterDate) return false;
-    }
-
-    if (activeTab === 'All Active') return true;
-
-    if (activeTab === 'Follow-up') {
-      const callOut = (lead.call_outcome || '').toLowerCase();
-      const meetType = (lead.meeting_type || '').toLowerCase();
-      // Sometimes "followup meeting" might be indicated by outcome
-      return callOut.includes('follow-up') || callOut.includes('follow up') || meetType.includes('follow');
-    }
-
-    if (activeTab === 'Pending') {
-      const demo = (lead.demo_call || '').toLowerCase();
-      const prop = (lead.proposal_sent || '').toLowerCase();
-      const close = (lead.closures || '').toLowerCase();
-      return demo.includes('pending') || prop.includes('pending') || close.includes('pending');
     }
 
     return true;
@@ -124,7 +109,7 @@ const Customer = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '100%', margin: '0 auto' }}>
       
       <div style={{ marginBottom: '-8px' }}>
-        <PageSearchBar placeholder="Search active leads..." />
+        <PageSearchBar placeholder="Search customers..." />
       </div>
 
       {/* Top Action Bar */}
@@ -132,65 +117,6 @@ const Customer = () => {
         
         {/* Left Side: Filter Tabs */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderRadius: '8px', padding: '4px', border: '1px solid #e2e8f0' }}>
-            <button
-              onClick={() => setActiveTab('All Active')}
-              style={{
-                padding: '6px 16px',
-                fontSize: '14px',
-                fontWeight: 600,
-                borderRadius: '6px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                border: activeTab === 'All Active' ? '1px solid #cbd5e1' : '1px solid transparent',
-                backgroundColor: activeTab === 'All Active' ? '#ffffff' : 'transparent',
-                color: activeTab === 'All Active' ? '#2563eb' : '#64748b',
-                boxShadow: activeTab === 'All Active' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
-              }}
-            >
-              <List style={{ width: '16px', height: '16px' }} /> All Active
-            </button>
-            <button
-              onClick={() => setActiveTab('Follow-up')}
-              style={{
-                padding: '6px 16px',
-                fontSize: '14px',
-                fontWeight: 600,
-                borderRadius: '6px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                border: activeTab === 'Follow-up' ? '1px solid #cbd5e1' : '1px solid transparent',
-                backgroundColor: activeTab === 'Follow-up' ? '#ffffff' : 'transparent',
-                color: activeTab === 'Follow-up' ? '#2563eb' : '#64748b',
-                boxShadow: activeTab === 'Follow-up' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
-              }}
-            >
-              <Calendar style={{ width: '16px', height: '16px' }} /> Follow-up
-            </button>
-            <button
-              onClick={() => setActiveTab('Pending')}
-              style={{
-                padding: '6px 16px',
-                fontSize: '14px',
-                fontWeight: 600,
-                borderRadius: '6px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                border: activeTab === 'Pending' ? '1px solid #cbd5e1' : '1px solid transparent',
-                backgroundColor: activeTab === 'Pending' ? '#ffffff' : 'transparent',
-                color: activeTab === 'Pending' ? '#2563eb' : '#64748b',
-                boxShadow: activeTab === 'Pending' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
-              }}
-            >
-              <Clock style={{ width: '16px', height: '16px' }} /> Pending
-            </button>
-          </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '14px', fontWeight: 500, color: '#64748b' }}>Date:</span>
@@ -210,7 +136,7 @@ const Customer = () => {
       </div>
 
       <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1e293b', marginTop: '-8px' }}>
-        Total Count : {filteredData.length} active leads
+        Total Count : {filteredData.length} customers
       </div>
 
       <DataTable columns={columns} data={filteredData} selectedIds={selectedIds} onSelectAll={(e) => setSelectedIds(e.target.checked ? filteredData.map(c => c.id) : [])} rowsPerPage={25} />
