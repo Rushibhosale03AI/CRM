@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, Users as UsersIcon, Search, Contact, Calendar, CheckSquare, Inbox, PhoneCall, Video, Settings, ChevronDown, ChevronRight, ChevronLeft, Circle, ShieldCheck, FileText, UserCog, Menu } from 'lucide-react';
+import { Home, Users as UsersIcon, Search, Contact, Calendar, CheckSquare, Inbox, PhoneCall, Video, Settings, ChevronRight, ChevronLeft, ShieldCheck, FileText, UserCog, Menu } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { useContext } from 'react';
 import logoImg from '../assets/datatech_logo.png';
@@ -9,16 +9,14 @@ import unitOneLogo from '../assets/unit_one_logo.png';
 
 const Sidebar = ({ isOpen, onClose }) => {
   const [hoveredPath, setHoveredPath] = useState(null);
-  const [isDashboardExpanded, setIsDashboardExpanded] = useState(true);
   const [isTeamHovered, setIsTeamHovered] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
 
-  const isCrmActive = location.pathname === '/';
-
   const { user } = useContext(AuthContext);
 
   const menuItems = [
+    { name: 'Dashboard', icon: Home, path: '/' },
     { name: 'Customer', icon: UsersIcon, path: '/customers' },
     { name: 'Leads', icon: Search, path: '/leads' },
     { name: 'Calendar', icon: Calendar, path: '/calendar' },
@@ -71,67 +69,6 @@ const Sidebar = ({ isOpen, onClose }) => {
       </div>
 
       <nav style={{ flex: 1, padding: '8px 16px', display: 'flex', flexDirection: 'column', gap: '6px', overflowY: 'auto' }}>
-        
-        {/* Dashboard Expandable Menu */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div
-            onClick={() => { if (!isCollapsed) setIsDashboardExpanded(!isDashboardExpanded); }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: isCollapsed ? 'center' : 'space-between',
-              padding: isCollapsed ? '12px 0' : '10px 14px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: 500,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease-in-out',
-              color: '#64748b'
-            }}
-            title={isCollapsed ? "Dashboard" : ""}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Home style={{ width: '20px', height: '20px', color: '#94a3b8' }} strokeWidth={2} />
-              {!isCollapsed && "Dashboard"}
-            </div>
-            {!isCollapsed && (
-              <ChevronDown style={{ 
-                width: '16px', 
-                height: '16px', 
-                transition: 'transform 0.2s',
-                transform: isDashboardExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                color: '#94a3b8'
-              }} />
-            )}
-          </div>
-
-          {isDashboardExpanded && !isCollapsed && (
-            <div style={{ display: 'flex', flexDirection: 'column', marginTop: '4px', paddingLeft: '8px' }}>
-              <NavLink
-                to="/"
-                onClick={() => onClose && onClose()}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '10px 14px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                  transition: 'all 0.2s',
-                  backgroundColor: isCrmActive ? '#3b82f6' : 'transparent',
-                  color: isCrmActive ? '#ffffff' : '#64748b',
-                  boxShadow: isCrmActive ? '0 4px 6px -1px rgba(20, 184, 166, 0.3)' : 'none'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <Circle style={{ width: '12px', height: '12px', color: isCrmActive ? '#ffffff' : '#94a3b8', fill: 'transparent' }} strokeWidth={2} />
-                  CRM
-                </div>
-              </NavLink>
-            </div>
-          )}
-        </div>
 
         {menuItems.map((item) => (
           <NavLink
