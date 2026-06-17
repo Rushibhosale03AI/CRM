@@ -3,6 +3,7 @@ import DataTable from '../components/DataTable';
 import { Edit, Trash2, CheckCircle2, ChevronDown, Filter, LayoutGrid, X } from 'lucide-react';
 import apiClient from '../api/apiClient';
 import PageSearchBar from '../components/PageSearchBar';
+import Loader from '../components/Loader';
 
 const Meetings = () => {
   const [meetings, setMeetings] = useState([]);
@@ -40,12 +41,14 @@ const Meetings = () => {
         </div>
       )
     },
-    { header: 'Title', accessor: 'title', render: (row) => <span style={{ color: '#0d9488', fontWeight: 600 }}>{row.title}</span> },
+    { header: 'Title', accessor: 'title', render: (row) => <span style={{ color: '#2563eb', fontWeight: 600 }}>{row.title}</span> },
     { header: 'Meeting Owner', accessor: 'meeting_owner' },
     { header: 'From Date', accessor: 'from_date', render: (row) => new Date(row.from_date).toLocaleString() },
     { header: 'To Date', accessor: 'to_date', render: (row) => new Date(row.to_date).toLocaleString() },
     { header: 'Status', accessor: 'status' },
   ];
+
+  if (loading) return <Loader message="Loading Meetings..." />;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '100%', margin: '0 auto' }}>
@@ -148,12 +151,12 @@ const Meetings = () => {
             type="checkbox" 
             onChange={(e) => setSelectedIds(e.target.checked ? meetings.map(m => m.id) : [])}
             checked={selectedIds.length === meetings.length && meetings.length > 0}
-            style={{ borderRadius: '4px', width: '16px', height: '16px', border: '1px solid #cbd5e1', accentColor: '#0d9488' }} 
+            style={{ borderRadius: '4px', width: '16px', height: '16px', border: '1px solid #cbd5e1', accentColor: '#2563eb' }} 
           />
           <span>Select all {meetings.length} rows</span>
         </label>
         
-        <button style={{ padding: '4px 8px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '4px', color: '#0f766e', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+        <button style={{ padding: '4px 8px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '4px', color: '#2563eb', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
           <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
           <ChevronDown style={{ width: '12px', height: '12px' }} />
         </button>

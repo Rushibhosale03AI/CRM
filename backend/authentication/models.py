@@ -9,6 +9,9 @@ class CustomUser(AbstractUser):
     role = models.CharField(max_length=50, choices=ROLE_CHOICES, default='Sales Representative')
     is_approved = models.BooleanField(default=False)
     name = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    theme = models.CharField(max_length=20, default='system')
+    email_notifications = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name or self.username

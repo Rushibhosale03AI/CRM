@@ -7,6 +7,7 @@ class Lead(models.Model):
     company_name = models.CharField(max_length=255, null=True, blank=True)
     email_address = models.EmailField(null=True, blank=True)
     contact_no = models.CharField(max_length=20, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
     designation = models.CharField(max_length=255, null=True, blank=True)
     meeting_date = models.CharField(max_length=100, null=True, blank=True)
     ae_assigned = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='leads')
@@ -16,6 +17,13 @@ class Lead(models.Model):
     demo_call = models.CharField(max_length=100, null=True, blank=True)
     proposal_sent = models.CharField(max_length=100, null=True, blank=True)
     closures = models.CharField(max_length=100, null=True, blank=True)
+    source = models.CharField(max_length=255, null=True, blank=True)
+    call_interaction_time = models.CharField(max_length=100, null=True, blank=True)
+    call_status = models.CharField(max_length=100, null=True, blank=True)
+    remark = models.TextField(null=True, blank=True)
+    conversation_time = models.DateTimeField(null=True, blank=True)
+    meeting_type = models.CharField(max_length=100, null=True, blank=True)
+    call_outcome = models.CharField(max_length=255, null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -154,6 +162,7 @@ class Message(models.Model):
 
 class EODReport(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='eod_reports')
+    report_date = models.DateField(null=True, blank=True)
     
     # Evening Report (Actuals)
     calls_done = models.CharField(max_length=255, null=True, blank=True)

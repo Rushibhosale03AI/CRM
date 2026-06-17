@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronDown, X } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../api/apiClient';
+import Loader from '../components/Loader';
 
 const CustomInput = ({ label, name, value, onChange, placeholder, isRequired }) => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -30,6 +31,8 @@ const CustomInput = ({ label, name, value, onChange, placeholder, isRequired }) 
 const CustomSelect = ({ label, name, value, onChange, options, placeholder, isRequired }) => {
   const [isOpen, setIsOpen] = useState(false);
   
+  if (loading) return <Loader message="Loading ContactEdit..." />;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
       <label style={{ fontSize: '14px', fontWeight: 500, color: '#334155' }}>

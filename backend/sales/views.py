@@ -1,4 +1,5 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
@@ -32,6 +33,15 @@ class LeadViewSet(viewsets.ModelViewSet):
             serializer.save(ae_assigned=self.request.user)
         else:
             serializer.save()
+
+
+
+    @action(detail=False, methods=['delete'])
+    def delete_all(self, request):
+        if getattr(request.user, 'role', None) != 'Admin':
+            return Response({'error': 'Only Admins can delete all leads.'}, status=status.HTTP_403_FORBIDDEN)
+        Lead.objects.all().delete()
+        return Response({'message': 'All leads deleted successfully.'})
 
 class CustomerViewSet(viewsets.ModelViewSet):
     serializer_class = CustomerSerializer
@@ -112,43 +122,10 @@ class ImportLeadsView(APIView):
             df = pd.read_excel(file_obj)
             df = df.fillna('')
             
-            # Check if the first row looks like data rather than headers
-            header_str = " ".join([str(c).lower() for c in df.columns])
-            has_typical_headers = any(h in header_str for h in ['industry', 'name', 'email', 'status', 'sr. no'])
-            
-            if not has_typical_headers or str(df.columns[0]).strip().isdigit():
-                # The first row might be a title or data. Let's find the actual header row!
-                file_obj.seek(0)
-                temp_df = pd.read_excel(file_obj, header=None)
-                
-                header_idx = 0
-                for idx, row in temp_df.iterrows():
-                    row_str = " ".join([str(x).lower() for x in row.values])
-                    if 'email' in row_str and ('name' in row_str or 'industry' in row_str):
-                        header_idx = idx
-                        break
-                
-                # If we couldn't find a clear header row, assume it's headerless data at index 0
-                if header_idx == 0 and not any(h in " ".join([str(x).lower() for x in temp_df.iloc[0].values]) for h in ['email', 'name', 'industry']):
-                    # It has no headers at all! Force positional headers
-                    df = temp_df.fillna('')
-                    expected_headers = [
-                        'industry', 'contact name', 'company name', 'email address', 
-                        'contact no', 'designation', 'meeting date', 'ae assigned', 'status', 
-                        'outcome', 'linkedin connect', 'demo call', 'proposal sent', 
-                        'closures'
-                    ]
-                    actual_cols = len(df.columns)
-                    df.columns = expected_headers[:actual_cols] + [str(c) for c in df.columns[actual_cols:]]
-                else:
-                    # Re-read using the found header index
-                    file_obj.seek(0)
-                    df = pd.read_excel(file_obj, header=header_idx)
-                    df = df.fillna('')
-            
             created_count = 0
             duplicate_count = 0
             duplicates = []
+            
             for index, row in df.iterrows():
                 row_dict = {str(k).strip().lower(): str(v).strip() for k, v in row.to_dict().items()}
                 
@@ -157,11 +134,17 @@ class ImportLeadsView(APIView):
                     if v.lower() == 'nan':
                         row_dict[k] = ''
                 
-                contact_email = row_dict.get('email address', row_dict.get('email', ''))
-                contact_number = row_dict.get('contact no', row_dict.get('number', row_dict.get('mobile', '')))
+                # Broaden the key checks to accommodate different Excel formats
+                contact_email = row_dict.get('email address', row_dict.get('email', row_dict.get('email id', '')))
+                contact_number = row_dict.get('contact no', row_dict.get('number', row_dict.get('mobile', row_dict.get('phone', row_dict.get('contact', '')))))
+                contact_name = row_dict.get('contact name', row_dict.get('name', row_dict.get('client name', row_dict.get('first name', ''))))
+                company_name = row_dict.get('company name', row_dict.get('company', row_dict.get('organization', row_dict.get('account', ''))))
+                industry = row_dict.get('industry', row_dict.get('sector', row_dict.get('vertical', '')))
+                designation = row_dict.get('designation', row_dict.get('title', row_dict.get('role', '')))
+                address = row_dict.get('address', row_dict.get('location', row_dict.get('city', '')))
                 
                 # Skip if totally empty
-                if not contact_email and not contact_number and not row_dict.get('contact name'):
+                if not contact_email and not contact_number and not contact_name:
                     continue
                 
                 # Check for duplicates by email or number
@@ -176,7 +159,7 @@ class ImportLeadsView(APIView):
                     duplicates.append(contact_email or contact_number or f"Row {index+1}")
                     continue
                 
-                ae_name = row_dict.get('ae assigned', '')
+                ae_name = row_dict.get('ae assigned', row_dict.get('owner', row_dict.get('assignee', '')))
                 ae_user = request.user
                 if ae_name:
                     from authentication.models import CustomUser
@@ -185,19 +168,26 @@ class ImportLeadsView(APIView):
                         ae_user = found_user
 
                 Lead.objects.create(
-                    industry=row_dict.get('industry', ''),
-                    contact_name=row_dict.get('contact name', ''),
-                    company_name=row_dict.get('company name', ''),
+                    industry=industry,
+                    contact_name=contact_name,
+                    company_name=company_name,
                     email_address=contact_email,
                     contact_no=contact_number,
-                    designation=row_dict.get('designation', ''),
+                    address=address,
+                    designation=designation,
                     meeting_date=row_dict.get('meeting date', ''),
                     status=row_dict.get('status', ''),
-                    outcome=row_dict.get('outcome', ''),
+                    outcome=row_dict.get('call outcome', row_dict.get('outcome', '')),
                     linkedin_connect=row_dict.get('linkedin connect', ''),
                     demo_call=row_dict.get('demo call', ''),
                     proposal_sent=row_dict.get('proposal sent', ''),
                     closures=row_dict.get('closures', ''),
+                    source=row_dict.get('source', ''),
+                    call_interaction_time=row_dict.get('call interaction time', ''),
+                    call_status=row_dict.get('call status', ''),
+                    remark=row_dict.get('remark', ''),
+                    meeting_type=row_dict.get('meeting type', ''),
+                    call_outcome=row_dict.get('call outcome', row_dict.get('outcome', '')),
                     ae_assigned=ae_user
                 )
                 created_count += 1
@@ -217,9 +207,10 @@ class ImportLeadsView(APIView):
 class ExportLeadsView(APIView):
     def get(self, request, *args, **kwargs):
         leads = Lead.objects.all().values(
-            'id', 'industry', 'contact_name', 'company_name', 'email_address', 'contact_no',
-            'designation', 'meeting_date', 'status', 'outcome', 'linkedin_connect',
-            'demo_call', 'proposal_sent', 'closures'
+            'id', 'industry', 'contact_name', 'company_name', 'email_address', 'contact_no', 'address',
+            'designation', 'meeting_date', 'status', 'call_outcome', 'linkedin_connect',
+            'demo_call', 'proposal_sent', 'closures', 'source', 'call_interaction_time',
+            'call_status', 'remark', 'meeting_type'
         )
         df = pd.DataFrame(list(leads))
         if not df.empty:
@@ -230,14 +221,20 @@ class ExportLeadsView(APIView):
                 'company_name': 'Company Name',
                 'email_address': 'Email Address',
                 'contact_no': 'Contact No',
+                'address': 'Address',
                 'designation': 'Designation',
                 'meeting_date': 'Meeting Date',
                 'status': 'Status',
-                'outcome': 'Outcome',
+                'call_outcome': 'Call Outcome',
                 'linkedin_connect': 'LinkedIn Connect',
                 'demo_call': 'Demo Call',
                 'proposal_sent': 'Proposal Sent',
-                'closures': 'Closures'
+                'closures': 'Closures',
+                'source': 'Source',
+                'call_interaction_time': 'Call Interaction Time',
+                'call_status': 'Call Status',
+                'remark': 'Remark',
+                'meeting_type': 'Meeting Type'
             }, inplace=True)
         
         output = io.BytesIO()
@@ -252,6 +249,29 @@ class ExportLeadsView(APIView):
         response['Content-Disposition'] = 'attachment; filename=leads.xlsx'
         return response
 
+class DownloadLeadTemplateView(APIView):
+    def get(self, request, *args, **kwargs):
+        headers = [
+            'Industry', 'Contact Name', 'Company Name', 'Email Address', 
+            'Contact No', 'Address', 'Designation', 'Meeting Date', 
+            'Status', 'Call Outcome', 'LinkedIn Connect', 'Demo Call', 
+            'Proposal Sent', 'Closures', 'Source', 'Call Interaction Time',
+            'Call Status', 'Remark', 'Meeting Type', 'AE Assigned'
+        ]
+        df = pd.DataFrame(columns=headers)
+        
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name='Template')
+        
+        output.seek(0)
+        response = HttpResponse(
+            output, 
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=lead_template.xlsx'
+        return response
+
 class EODReportViewSet(viewsets.ModelViewSet):
     serializer_class = EODReportSerializer
     def get_queryset(self):
@@ -262,4 +282,6 @@ class EODReportViewSet(viewsets.ModelViewSet):
         
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
 

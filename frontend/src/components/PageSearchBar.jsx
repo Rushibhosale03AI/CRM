@@ -60,7 +60,7 @@ const PageSearchBar = ({ placeholder = "Search...", searchOptions = [] }) => {
         display: 'flex', 
         alignItems: 'center',
         backgroundColor: isSearchFocused ? '#ffffff' : '#f8fafc',
-        border: `1px solid ${isSearchFocused ? '#14b8a6' : '#e2e8f0'}`,
+        border: `1px solid ${isSearchFocused ? '#3b82f6' : '#e2e8f0'}`,
         borderRadius: '8px',
         boxShadow: isSearchFocused ? '0 0 0 2px rgba(20, 184, 166, 0.1)' : 'inset 0 1px 2px rgba(0, 0, 0, 0.05)',
         transition: 'all 0.2s',
@@ -70,7 +70,7 @@ const PageSearchBar = ({ placeholder = "Search...", searchOptions = [] }) => {
         <Search style={{
           width: '16px',
           height: '16px',
-          color: isSearchFocused ? '#14b8a6' : '#94a3b8',
+          color: isSearchFocused ? '#3b82f6' : '#94a3b8',
           transition: 'color 0.2s'
         }} />
       </div>
@@ -108,7 +108,7 @@ const PageSearchBar = ({ placeholder = "Search...", searchOptions = [] }) => {
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              color: searchField !== 'all' ? '#0f766e' : '#475569',
+              color: searchField !== 'all' ? '#2563eb' : '#475569',
               fontSize: '14px',
               fontFamily: 'inherit',
               fontWeight: 500,
@@ -141,12 +141,12 @@ const PageSearchBar = ({ placeholder = "Search...", searchOptions = [] }) => {
                   fontFamily: 'inherit',
                   cursor: 'pointer',
                   borderRadius: '4px',
-                  backgroundColor: searchField === 'all' ? '#f0fdfa' : 'transparent',
-                  color: searchField === 'all' ? '#0f766e' : '#334155',
+                  backgroundColor: searchField === 'all' ? '#eff6ff' : 'transparent',
+                  color: searchField === 'all' ? '#2563eb' : '#334155',
                   fontWeight: searchField === 'all' ? 600 : 400,
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = searchField === 'all' ? '#f0fdfa' : '#f8fafc'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = searchField === 'all' ? '#f0fdfa' : 'transparent'}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = searchField === 'all' ? '#eff6ff' : '#f8fafc'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = searchField === 'all' ? '#eff6ff' : 'transparent'}
               >
                 All Columns
               </div>
@@ -160,12 +160,12 @@ const PageSearchBar = ({ placeholder = "Search...", searchOptions = [] }) => {
                     fontFamily: 'inherit',
                     cursor: 'pointer',
                     borderRadius: '4px',
-                    backgroundColor: searchField === opt.value ? '#f0fdfa' : 'transparent',
-                    color: searchField === opt.value ? '#0f766e' : '#334155',
+                    backgroundColor: searchField === opt.value ? '#eff6ff' : 'transparent',
+                    color: searchField === opt.value ? '#2563eb' : '#334155',
                     fontWeight: searchField === opt.value ? 600 : 400,
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = searchField === opt.value ? '#f0fdfa' : '#f8fafc'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = searchField === opt.value ? '#f0fdfa' : 'transparent'}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = searchField === opt.value ? '#eff6ff' : '#f8fafc'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = searchField === opt.value ? '#eff6ff' : 'transparent'}
                 >
                   {opt.label}
                 </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DataTable from '../components/DataTable';
 import apiClient from '../api/apiClient';
 import PageSearchBar from '../components/PageSearchBar';
+import Loader from '../components/Loader';
 
 const Todos = () => {
   const [todos, setTodos] = useState([]);
@@ -43,7 +44,9 @@ const Todos = () => {
           color = '#10b981'; // Green
           bg = '#ecfdf5';
         }
-        return (
+        if (loading) return <Loader message="Loading Todos..." />;
+
+  return (
           <span style={{ 
             color: color, 
             backgroundColor: bg,
@@ -84,7 +87,7 @@ const Todos = () => {
             type="checkbox" 
             onChange={(e) => setSelectedIds(e.target.checked ? todos.map(t => t.id) : [])}
             checked={selectedIds.length === todos.length && todos.length > 0}
-            style={{ borderRadius: '4px', width: '16px', height: '16px', border: '1px solid #cbd5e1', accentColor: '#0d9488' }} 
+            style={{ borderRadius: '4px', width: '16px', height: '16px', border: '1px solid #cbd5e1', accentColor: '#2563eb' }} 
           />
           <span>Select all {todos.length} rows</span>
         </label>

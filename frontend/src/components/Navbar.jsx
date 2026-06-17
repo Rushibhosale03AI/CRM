@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Bell, Settings, LogOut } from 'lucide-react';
+import { Bell, Settings, LogOut, Menu } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { AuthContext } from '../context/AuthContext';
 import apiClient from '../api/apiClient';
 import EODReportModal from './EODReportModal';
 
-const Navbar = () => {
+const Navbar = ({ onMenuClick }) => {
   const [hoveredIcon, setHoveredIcon] = useState(null);
   const [isEodModalOpen, setIsEodModalOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
   const notificationRef = useRef(null);
+  const profileRef = useRef(null);
   const [todayEvents, setTodayEvents] = useState([]);
   const [rungEvents, setRungEvents] = useState(new Set());
   const location = useLocation();
@@ -22,12 +24,9 @@ const Navbar = () => {
     if (path === '/') return 'Dashboard';
     if (path.startsWith('/customers')) return 'Customers';
     if (path.startsWith('/leads')) return 'Leads';
-    if (path.startsWith('/contacts')) return 'Contacts';
     if (path.startsWith('/calendar')) return 'Calendar';
     if (path.startsWith('/todos')) return 'To-dos';
-    if (path.startsWith('/calls')) return 'Calls';
     if (path.startsWith('/meetings')) return 'Meetings';
-    if (path.startsWith('/inbox')) return 'Inbox';
     if (path.startsWith('/admin/approvals')) return 'User Approvals';
     if (path.startsWith('/admin/eod-reports')) return 'EOD Reports';
     if (path.startsWith('/settings')) return 'Settings';
@@ -95,6 +94,9 @@ const Navbar = () => {
       if (notificationRef.current && !notificationRef.current.contains(event.target)) {
         setShowNotifications(false);
       }
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setShowProfilePopup(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -160,7 +162,7 @@ const Navbar = () => {
   };
 
   return (
-    <header style={{
+    <header className="responsive-navbar" style={{
       backgroundColor: 'rgba(255, 255, 255, 0.8)',
       backdropFilter: 'blur(12px)',
       borderBottom: '1px solid #e2e8f0',
@@ -175,7 +177,17 @@ const Navbar = () => {
       flexShrink: 0,
       boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.05)'
     }}>
-      <div style={{ flex: 1 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+        <button 
+          className="mobile-only"
+          onClick={onMenuClick}
+          style={{ 
+            background: 'none', border: 'none', padding: '8px', cursor: 'pointer', 
+            color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center' 
+          }}
+        >
+          <Menu style={{ width: '24px', height: '24px' }} />
+        </button>
         <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold', color: '#1e293b' }}>
           {getPageTitle()}
         </h1>
@@ -190,8 +202,8 @@ const Navbar = () => {
               onMouseLeave={() => setHoveredIcon(null)}
               style={{
                 padding: '8px',
-                color: hoveredIcon === 'bell' || showNotifications ? '#0d9488' : '#94a3b8',
-                backgroundColor: hoveredIcon === 'bell' || showNotifications ? '#f0fdfa' : 'transparent',
+                color: hoveredIcon === 'bell' || showNotifications ? '#2563eb' : '#94a3b8',
+                backgroundColor: hoveredIcon === 'bell' || showNotifications ? '#eff6ff' : 'transparent',
                 border: 'none',
                 borderRadius: '50%',
                 cursor: 'pointer',
@@ -262,21 +274,6 @@ const Navbar = () => {
               </div>
             )}
           </div>
-          <button 
-            onMouseEnter={() => setHoveredIcon('settings')}
-            onMouseLeave={() => setHoveredIcon(null)}
-            style={{
-              padding: '8px',
-              color: hoveredIcon === 'settings' ? '#334155' : '#94a3b8',
-              backgroundColor: hoveredIcon === 'settings' ? '#f1f5f9' : 'transparent',
-              border: 'none',
-              borderRadius: '50%',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            <Settings style={{ width: '20px', height: '20px' }} />
-          </button>
         </div>
 
         {user && user.role !== 'Admin' && (
@@ -286,7 +283,7 @@ const Navbar = () => {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              backgroundColor: '#14b8a6',
+              backgroundColor: '#3b82f6',
               color: '#ffffff',
               border: 'none',
               borderRadius: '8px',
@@ -297,53 +294,98 @@ const Navbar = () => {
               boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
               transition: 'background-color 0.2s',
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0d9488'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#14b8a6'}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
           >
             EOD Report
           </button>
         )}
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', borderLeft: '1px solid #e2e8f0', paddingLeft: '20px' }}>
-          <div style={{ textAlign: 'right', display: 'block' }}>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b' }}>{user?.name || 'User'}</div>
-            <div style={{ fontSize: '11px', fontWeight: 500, color: '#64748b' }}>{user?.role || 'Role'}</div>
+        <div ref={profileRef} style={{ display: 'flex', alignItems: 'center', gap: '12px', borderLeft: '1px solid #e2e8f0', paddingLeft: '20px', position: 'relative' }}>
+          <div 
+            onClick={() => setShowProfilePopup(!showProfilePopup)}
+            style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+          >
+            <div className="desktop-only" style={{ textAlign: 'right', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center' }}>
+              <div style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b' }}>{user?.name || 'User'}</div>
+              <div style={{ fontSize: '11px', fontWeight: 500, color: '#64748b' }}>{user?.role || 'Role'}</div>
+            </div>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              background: 'linear-gradient(to top right, #dbeafe, #eff6ff)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#2563eb',
+              position: 'relative',
+              border: '1px solid #bfdbfe',
+              boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+            }}>
+              <span style={{ fontWeight: 'bold', fontSize: '14px', letterSpacing: '0.025em' }}>
+                {user?.name ? user.name.substring(0, 2).toUpperCase() : 'U'}
+              </span>
+              <div style={{
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                width: '12px',
+                height: '12px',
+                backgroundColor: '#22c55e',
+                borderRadius: '50%',
+                border: '2px solid #ffffff',
+                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+              }}></div>
+            </div>
           </div>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            background: 'linear-gradient(to top right, #ccfbf1, #f0fdfa)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#0f766e',
-            position: 'relative',
-            border: '1px solid #99f6e4',
-            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
-          }}>
-            <span style={{ fontWeight: 'bold', fontSize: '14px', letterSpacing: '0.025em' }}>
-              {user?.name ? user.name.substring(0, 2).toUpperCase() : 'U'}
-            </span>
+
+          {showProfilePopup && (
             <div style={{
               position: 'absolute',
-              bottom: 0,
+              top: '100%',
               right: 0,
-              width: '12px',
-              height: '12px',
-              backgroundColor: '#22c55e',
-              borderRadius: '50%',
-              border: '2px solid #ffffff',
-              boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
-            }}></div>
-          </div>
-          <button 
-            onClick={() => setIsLogoutModalOpen(true)}
-            style={{ marginLeft: '12px', padding: '8px', color: '#ef4444', backgroundColor: '#fee2e2', border: 'none', borderRadius: '50%', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            title="Logout"
-          >
-            <LogOut style={{ width: '18px', height: '18px' }} />
-          </button>
+              marginTop: '12px',
+              width: '260px',
+              backgroundColor: '#ffffff',
+              borderRadius: '12px',
+              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+              border: '1px solid #e2e8f0',
+              zIndex: 100,
+              overflow: 'hidden'
+            }}>
+              <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
+                <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: '#1e293b' }}>{user?.name || 'User'}</h3>
+                <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>{user?.role || 'Role'}</p>
+              </div>
+              <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginBottom: '2px' }}>Email Address</div>
+                  <div style={{ fontSize: '14px', color: '#1e293b', wordBreak: 'break-all' }}>{user?.email || 'N/A'}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginBottom: '2px' }}>Username</div>
+                  <div style={{ fontSize: '14px', color: '#1e293b' }}>{user?.username || 'N/A'}</div>
+                </div>
+              </div>
+              <div style={{ borderTop: '1px solid #e2e8f0', padding: '8px' }}>
+                <button 
+                  onClick={() => setIsLogoutModalOpen(true)}
+                  style={{ 
+                    width: '100%', padding: '10px 16px', color: '#ef4444', backgroundColor: 'transparent', 
+                    border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s', 
+                    display: 'flex', alignItems: 'center', gap: '12px', fontWeight: 500, fontSize: '14px',
+                    textAlign: 'left'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fee2e2'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  <LogOut style={{ width: '18px', height: '18px' }} />
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

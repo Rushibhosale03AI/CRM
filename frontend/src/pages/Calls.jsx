@@ -5,6 +5,7 @@ import { Edit, Trash2, CheckCircle2, ChevronDown, Plus, Filter, LayoutGrid, X } 
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../api/apiClient';
 import PageSearchBar from '../components/PageSearchBar';
+import Loader from '../components/Loader';
 
 const Calls = () => {
   const [calls, setCalls] = useState([]);
@@ -69,13 +70,15 @@ const Calls = () => {
         </div>
       )
     },
-    { header: 'Title', accessor: 'title', render: (row) => <span onClick={() => handleEdit(row.id)} style={{ color: '#0d9488', fontWeight: 600, cursor: 'pointer' }}>{row.title}</span> },
+    { header: 'Title', accessor: 'title', render: (row) => <span onClick={() => handleEdit(row.id)} style={{ color: '#2563eb', fontWeight: 600, cursor: 'pointer' }}>{row.title}</span> },
     { header: 'Call Owner', accessor: 'call_owner' },
     { header: 'Status', accessor: 'status' },
     { header: 'Start Date', accessor: 'start_date', render: (row) => new Date(row.start_date).toLocaleString() },
     { header: 'Reminder', accessor: 'reminder_time', render: (row) => row.reminder_time ? new Date(row.reminder_time).toLocaleString() : '-' },
     { header: 'Created At', accessor: 'created_at', render: (row) => new Date(row.created_at).toLocaleString() },
   ];
+
+  if (loading) return <Loader message="Loading Calls..." />;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '100%', margin: '0 auto' }}>
@@ -125,7 +128,7 @@ const Calls = () => {
                 cursor: 'pointer',
                 border: activeTab === tab ? '1px solid #cbd5e1' : '1px solid transparent',
                 backgroundColor: activeTab === tab ? '#ffffff' : 'transparent',
-                color: activeTab === tab ? '#0f766e' : '#64748b',
+                color: activeTab === tab ? '#2563eb' : '#64748b',
                 boxShadow: activeTab === tab ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
               }}
             >
@@ -141,7 +144,7 @@ const Calls = () => {
           onClick={() => navigate('/calls/new')}
           style={{
           padding: '8px 16px',
-          backgroundColor: '#1b4353',
+          backgroundColor: '#0f172a',
           color: '#ffffff',
           border: 'none',
           borderRadius: '6px',
@@ -196,7 +199,7 @@ const Calls = () => {
             type="checkbox" 
             onChange={(e) => setSelectedIds(e.target.checked ? calls.map(c => c.id) : [])}
             checked={selectedIds.length === calls.length && calls.length > 0}
-            style={{ borderRadius: '4px', width: '16px', height: '16px', border: '1px solid #cbd5e1', accentColor: '#0d9488' }} 
+            style={{ borderRadius: '4px', width: '16px', height: '16px', border: '1px solid #cbd5e1', accentColor: '#2563eb' }} 
           />
           <span>Select all {calls.length} rows</span>
         </label>

@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 
-const DataTable = ({ columns, data, onSelectAll, selectedIds }) => {
+const DataTable = ({ columns, data, onSelectAll, selectedIds, rowsPerPage = 10 }) => {
   const [hoveredRow, setHoveredRow] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 10;
 
   useEffect(() => {
     setCurrentPage(1);
@@ -39,19 +38,24 @@ const DataTable = ({ columns, data, onSelectAll, selectedIds }) => {
       backgroundColor: '#ffffff',
       border: '1px solid #e2e8f0',
       borderRadius: '12px',
-      overflow: 'hidden',
-      boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.05)'
+      boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+      display: 'flex',
+      flexDirection: 'column',
+      maxHeight: 'calc(100vh - 280px)'
     }}>
-      <div style={{ overflowX: 'auto' }}>
+      <div style={{ overflow: 'auto', flex: 1 }}>
         <table style={{ width: '100%', textAlign: 'left', fontSize: '14px', whiteSpace: 'nowrap', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ backgroundColor: 'rgba(248, 250, 252, 0.8)', color: '#475569', borderBottom: '1px solid #e2e8f0', fontSize: '13px' }}>
-
+            <tr style={{ color: '#1e293b', fontSize: '12px', textTransform: 'uppercase' }}>
               {columns.map((col, idx) => (
-                <th key={idx} style={{ padding: '14px 20px', fontWeight: 600, letterSpacing: '0.025em' }}>
+                <th key={idx} style={{ 
+                  padding: '16px 20px', fontWeight: 700, letterSpacing: '0.05em',
+                  position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#f1f5f9',
+                  borderBottom: '2px solid #e2e8f0'
+                }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
                     {col.header}
-                    <svg style={{ width: '16px', height: '16px', color: '#94a3b8' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
+                    <svg style={{ width: '16px', height: '16px', color: '#94a3b8', marginLeft: '8px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
                   </div>
                 </th>
               ))}
@@ -139,7 +143,7 @@ const DataTable = ({ columns, data, onSelectAll, selectedIds }) => {
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center', 
-                      backgroundColor: currentPage === page ? '#0d9488' : 'transparent', 
+                      backgroundColor: currentPage === page ? '#2563eb' : 'transparent', 
                       color: currentPage === page ? '#ffffff' : '#475569', 
                       fontWeight: currentPage === page ? 600 : 400,
                       cursor: 'pointer' 

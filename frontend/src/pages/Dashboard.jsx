@@ -4,6 +4,7 @@ import { LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer } from 'recha
 import { AuthContext } from '../context/AuthContext';
 import apiClient from '../api/apiClient';
 import PageSearchBar from '../components/PageSearchBar';
+import Loader from '../components/Loader';
 
 const sparklineDataRed = [
   { value: 100 }, { value: 120 }, { value: 80 }, { value: 90 }, { value: 40 }, { value: 30 }
@@ -22,9 +23,10 @@ const pieData = [
 const Dashboard = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { user } = useContext(AuthContext);
+  const [loading, setLoading] = useState(true);
   
   const [leadsData, setLeadsData] = useState({ count: 0, active: 0, dead: 0, closed: 0 });
-  const [customersCount, setCustomersCount] = useState(0);
+  const [customersData, setCustomersData] = useState({ total: 0, active: 0 });
   const [contactsCount, setContactsCount] = useState(0);
   const [todaysCalls, setTodaysCalls] = useState([]);
   const [latestEodReport, setLatestEodReport] = useState(null);
@@ -55,8 +57,13 @@ const Dashboard = () => {
           else active++;
         });
         setLeadsData({ count: leads.length, active, dead, closed });
-        setCustomersCount((customersRes.data || []).length);
-        setContactsCount((contactsRes.data || []).length);
+        
+        const customers = customersRes.data || [];
+        const activeCustomers = customers.filter(c => c.status === 'Active').length;
+        setCustomersData({ total: customers.length, active: activeCustomers });
+        
+        const validContacts = leads.filter(l => l.contact_no && l.contact_no.trim() !== '').length;
+        setContactsCount(validContacts);
         
         const todayStr = new Date().toISOString().split('T')[0];
         const tCalls = (callsRes.data || []).filter(c => {
@@ -80,6 +87,8 @@ const Dashboard = () => {
         
       } catch (err) {
         console.error("Error fetching dashboard data", err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchDashboardData();
@@ -113,6 +122,8 @@ const Dashboard = () => {
 
     return `${month} ${day} ${year}, ${formattedHours}:${minutes}:${seconds} ${ampm}`;
   };
+
+  if (loading) return <Loader message="Loading dashboard metrics..." />;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '100%', margin: '0 auto' }}>
@@ -194,9 +205,9 @@ const Dashboard = () => {
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
             <div>
-              <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#1e293b', margin: '8px 0' }}>{customersCount}</div>
+              <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#1e293b', margin: '8px 0' }}>{leadsData.active}</div>
               <div style={{ fontSize: '12px', color: '#64748b' }}>
-                <span style={{ color: '#10b981', fontWeight: 600 }}>Active data</span> dynamically loaded
+                <span style={{ color: '#10b981', fontWeight: 600 }}>Total Customers</span> dynamically loaded
               </div>
             </div>
             <div style={{ width: '100px', height: '50px' }}>
@@ -209,7 +220,7 @@ const Dashboard = () => {
           </div>
           <div style={{ marginTop: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b', marginBottom: '8px', fontWeight: 500 }}>
-              <span><strong style={{ color: '#334155' }}>{customersCount}</strong> Total Customers</span>
+              <span><strong style={{ color: '#334155' }}>{leadsData.active}</strong> Active Customers</span>
             </div>
             <div style={{ width: '100%', height: '6px', backgroundColor: '#bfdbfe', borderRadius: '3px', overflow: 'hidden', display: 'flex' }}>
               <div style={{ width: '47%', height: '100%', backgroundColor: '#1d4ed8' }}></div>
@@ -262,7 +273,7 @@ const Dashboard = () => {
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
             {latestEodReport && latestEodReport !== 'NONE' ? (
               <>
-                <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#0d9488', marginBottom: '8px' }}>{latestEodReport.calls_done || '0'}</div>
+                <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#2563eb', marginBottom: '8px' }}>{latestEodReport.calls_done || '0'}</div>
                 <h4 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b', margin: '0 0 4px 0' }}>Calls Done Today</h4>
                 <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>Target: {latestEodReport.target_calls || '0'} calls</p>
                 {todaysCalls.length > 0 && (
@@ -273,7 +284,7 @@ const Dashboard = () => {
               </>
             ) : todaysCalls.length > 0 ? (
               <>
-                <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#0d9488', marginBottom: '8px' }}>{todaysCalls.length}</div>
+                <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#2563eb', marginBottom: '8px' }}>{todaysCalls.length}</div>
                 <h4 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b', margin: '0 0 4px 0' }}>Calls Scheduled</h4>
                 <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>You have {todaysCalls.length} call(s) to make today!</p>
               </>

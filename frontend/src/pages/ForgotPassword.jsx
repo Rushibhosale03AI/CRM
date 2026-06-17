@@ -69,7 +69,7 @@ const ForgotPassword = () => {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f8fafc' }}>
       <div style={{ backgroundColor: 'white', padding: '40px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '24px', textAlign: 'center', color: '#14b8a6' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '24px', textAlign: 'center', color: '#3b82f6' }}>
           {step === 1 ? 'Forgot Password' : step === 2 ? 'Verify OTP' : 'Reset Password'}
         </h2>
         
@@ -89,7 +89,7 @@ const ForgotPassword = () => {
                 required 
               />
             </div>
-            <button type="submit" disabled={loading} style={{ width: '100%', padding: '12px', backgroundColor: '#14b8a6', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: loading ? 'not-allowed' : 'pointer' }}>
+            <button type="submit" disabled={loading} style={{ width: '100%', padding: '12px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: loading ? 'not-allowed' : 'pointer' }}>
               {loading ? 'Sending...' : 'Send OTP'}
             </button>
           </form>
@@ -108,7 +108,7 @@ const ForgotPassword = () => {
                 required 
               />
             </div>
-            <button type="submit" disabled={loading} style={{ width: '100%', padding: '12px', backgroundColor: '#14b8a6', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: loading ? 'not-allowed' : 'pointer' }}>
+            <button type="submit" disabled={loading} style={{ width: '100%', padding: '12px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: loading ? 'not-allowed' : 'pointer' }}>
               {loading ? 'Verifying...' : 'Verify OTP'}
             </button>
           </form>
@@ -136,14 +136,14 @@ const ForgotPassword = () => {
                 required 
               />
             </div>
-            <button type="submit" disabled={loading} style={{ width: '100%', padding: '12px', backgroundColor: '#14b8a6', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: loading ? 'not-allowed' : 'pointer' }}>
+            <button type="submit" disabled={loading} style={{ width: '100%', padding: '12px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: loading ? 'not-allowed' : 'pointer' }}>
               {loading ? 'Resetting...' : 'Reset Password'}
             </button>
           </form>
         )}
 
         <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: '#64748b' }}>
-          Remember your password? <Link to="/login" style={{ color: '#14b8a6', textDecoration: 'none', fontWeight: 'bold' }}>Log In</Link>
+          Remember your password? <Link to="/login" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 'bold' }}>Log In</Link>
         </div>
       </div>
     </div>

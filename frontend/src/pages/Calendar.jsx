@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalIcon, Plus } from 'lucide-react';
+import Loader from '../components/Loader';
 import { AuthContext } from '../context/AuthContext';
 import apiClient from '../api/apiClient';
 import AddEventModal from '../components/AddEventModal';
@@ -241,7 +242,7 @@ const Calendar = () => {
 
         {/* Views */}
         {loading ? (
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>Loading...</div>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Loader message="Loading calendar..." /></div>
         ) : currentView === 'Month' ? (
           <>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>

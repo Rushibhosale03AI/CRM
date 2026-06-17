@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../api/apiClient';
+import Loader from '../components/Loader';
 
 const CustomInput = ({ label, name, value, onChange, placeholder, isRequired }) => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -32,6 +33,8 @@ const CustomInput = ({ label, name, value, onChange, placeholder, isRequired }) 
 const CustomSelect = ({ label, name, value, onChange, options, placeholder, isRequired }) => {
   const [isOpen, setIsOpen] = useState(false);
   
+  if (loading) return <Loader message="Loading CustomerEdit..." />;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
       <label style={{ fontSize: '14px', fontWeight: 500, color: '#334155' }}>
@@ -179,7 +182,7 @@ const CustomerEdit = () => {
           </button>
           <button 
             onClick={handleSave}
-            style={{ padding: '8px 16px', backgroundColor: '#1b4353', border: 'none', borderRadius: '6px', color: '#ffffff', fontWeight: 500, cursor: 'pointer' }}>
+            style={{ padding: '8px 16px', backgroundColor: '#0f172a', border: 'none', borderRadius: '6px', color: '#ffffff', fontWeight: 500, cursor: 'pointer' }}>
             Save
           </button>
         </div>
@@ -204,8 +207,8 @@ const CustomerEdit = () => {
                   padding: '16px 8px',
                   backgroundColor: 'transparent',
                   border: 'none',
-                  borderBottom: isActive ? '2px solid #1b4353' : '2px solid transparent',
-                  color: isActive ? '#1b4353' : '#64748b',
+                  borderBottom: isActive ? '2px solid #0f172a' : '2px solid transparent',
+                  color: isActive ? '#0f172a' : '#64748b',
                   fontSize: '14px',
                   fontWeight: isActive ? 600 : 500,
                   cursor: 'pointer',
@@ -213,7 +216,7 @@ const CustomerEdit = () => {
                   marginBottom: '-1px'
                 }}
               >
-                <Icon style={{ width: '16px', height: '16px', color: isActive ? '#1b4353' : '#64748b' }} />
+                <Icon style={{ width: '16px', height: '16px', color: isActive ? '#0f172a' : '#64748b' }} />
                 {tab.label}
               </button>
             )
@@ -320,7 +323,7 @@ const CustomerEdit = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
                      <StickyNote style={{ width: '18px', height: '18px', color: '#64748b' }} />
                      <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#1e293b', margin: 0 }}>Open To-dos</h3>
-                     <span style={{ backgroundColor: '#1b4353', color: 'white', fontSize: '12px', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>0</span>
+                     <span style={{ backgroundColor: '#0f172a', color: 'white', fontSize: '12px', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>0</span>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 0', textAlign: 'center' }}>
                      <div style={{ width: '100%', maxWidth: '220px', height: '160px', backgroundColor: '#f8fafc', borderRadius: '12px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -336,7 +339,7 @@ const CustomerEdit = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
                      <Calendar style={{ width: '18px', height: '18px', color: '#64748b' }} />
                      <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#1e293b', margin: 0 }}>Open Meetings</h3>
-                     <span style={{ backgroundColor: '#1b4353', color: 'white', fontSize: '12px', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>0</span>
+                     <span style={{ backgroundColor: '#0f172a', color: 'white', fontSize: '12px', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>0</span>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 0', textAlign: 'center' }}>
                      <div style={{ width: '100%', maxWidth: '220px', height: '160px', backgroundColor: '#f8fafc', borderRadius: '12px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -352,7 +355,7 @@ const CustomerEdit = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
                      <PhoneCall style={{ width: '18px', height: '18px', color: '#64748b' }} />
                      <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#1e293b', margin: 0 }}>Open Calls</h3>
-                     <span style={{ backgroundColor: '#1b4353', color: 'white', fontSize: '12px', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>2</span>
+                     <span style={{ backgroundColor: '#0f172a', color: 'white', fontSize: '12px', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>2</span>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingTop: '8px' }}>
                      
@@ -360,8 +363,8 @@ const CustomerEdit = () => {
                      <div style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '16px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                         <MoreVertical style={{ width: '18px', height: '18px', color: '#94a3b8', cursor: 'pointer', marginTop: '2px' }} />
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                           <span style={{ fontSize: '14px', fontWeight: 600, color: '#1b4353' }}>Call Scheduled with</span>
-                           <span style={{ fontSize: '14px', color: '#1b4353', fontWeight: 500 }}>( AAA )</span>
+                           <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>Call Scheduled with</span>
+                           <span style={{ fontSize: '14px', color: '#0f172a', fontWeight: 500 }}>( AAA )</span>
                            <span style={{ fontSize: '13px', color: '#475569' }}>03/06/2026 09:31:11 AM</span>
                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748b', marginTop: '4px' }}>
                               <Contact style={{ width: '14px', height: '14px' }} />
@@ -374,8 +377,8 @@ const CustomerEdit = () => {
                      <div style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '16px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                         <MoreVertical style={{ width: '18px', height: '18px', color: '#94a3b8', cursor: 'pointer', marginTop: '2px' }} />
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                           <span style={{ fontSize: '14px', fontWeight: 600, color: '#1b4353' }}>Call Scheduled with</span>
-                           <span style={{ fontSize: '14px', color: '#1b4353', fontWeight: 500 }}>( asdf )</span>
+                           <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>Call Scheduled with</span>
+                           <span style={{ fontSize: '14px', color: '#0f172a', fontWeight: 500 }}>( asdf )</span>
                            <span style={{ fontSize: '13px', color: '#475569' }}>02/06/2026 05:59:49 PM</span>
                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748b', marginTop: '4px' }}>
                               <Contact style={{ width: '14px', height: '14px' }} />

@@ -1,47 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DataTable from '../components/DataTable';
-import { Edit, Trash2, ChevronDown, Plus, Filter, FileText } from 'lucide-react';
+import { Edit, Trash2, Calendar, Clock, List, XCircle } from 'lucide-react';
 import apiClient from '../api/apiClient';
 import PageSearchBar from '../components/PageSearchBar';
+import Loader from '../components/Loader';
 
 const Customer = () => {
-  const [customers, setCustomers] = useState([]);
+  const [leads, setLeads] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [isActionsOpen, setIsActionsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('All Active');
+  const [filterDate, setFilterDate] = useState('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchCustomers();
+    fetchLeads();
   }, []);
 
-  const fetchCustomers = async () => {
+  const fetchLeads = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get('customers/');
-      setCustomers(response.data);
+      const response = await apiClient.get('leads/');
+      setLeads(response.data);
     } catch (error) {
-      console.error("Error fetching customers:", error);
+      console.error("Error fetching leads:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleEdit = (id) => {
-    navigate(`/customers/edit/${id}`);
+    // Navigate to Lead Edit since we are showing leads
+    navigate(`/leads/edit/${id}`);
   };
 
   const handleDelete = async (id) => {
     try {
-      await apiClient.delete(`customers/${id}/`);
-      setCustomers(customers.filter(c => c.id !== id));
+      await apiClient.delete(`leads/${id}/`);
+      setLeads(leads.filter(c => c.id !== id));
     } catch (error) {
-      console.error("Error deleting customer:", error);
+      console.error("Error deleting lead:", error);
     }
   };
 
   const columns = [
+    { 
+      header: 'Sr. No.', 
+      render: (row, index) => <div style={{ fontWeight: 500, color: '#334155' }}>{index + 1}</div>
+    },
     { 
       header: 'Action', 
       accessor: 'action',
@@ -62,149 +69,151 @@ const Customer = () => {
         </div>
       )
     },
-    { header: 'Name', accessor: 'name', render: (row) => <span onClick={() => handleEdit(row.id)} style={{ color: '#0d9488', fontWeight: 600, cursor: 'pointer' }}>{row.name}</span> },
-    { header: 'Customer Owner', accessor: 'customer_owner' },
+    { header: 'Created Date', accessor: 'created_at', render: (row) => row.created_at ? new Date(row.created_at).toLocaleDateString('en-GB') : 'N/A' },
+    { header: 'Contact Name', accessor: 'contact_name', render: (row) => <span onClick={() => handleEdit(row.id)} style={{ fontWeight: 700, cursor: 'pointer', color: '#1e293b' }}>{row.contact_name || 'N/A'}</span> },
+    { header: 'Assigned AE', accessor: 'ae_assigned_details', render: (row) => row.ae_assigned_details?.name || row.ae_assigned_details?.username || 'Unassigned' },
     { header: 'Industry', accessor: 'industry' },
-    { header: 'Mobile', accessor: 'mobile' },
-    { header: 'Email', accessor: 'email' },
-    { header: 'Created At', accessor: 'created_at', render: (row) => new Date(row.created_at).toLocaleString() },
+    { header: 'Contact No', accessor: 'contact_no' },
+    { header: 'Email', accessor: 'email_address' },
+    { header: 'Meeting Date', accessor: 'meeting_date', render: (row) => row.meeting_date ? new Date(row.meeting_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '' },
+    { header: 'Call Outcome', accessor: 'call_outcome' },
+    { header: 'Demo Call', accessor: 'demo_call' },
+    { header: 'Proposal Sent', accessor: 'proposal_sent' }
   ];
+
+  // 1. Only show "Active" leads
+  const activeLeads = leads.filter(lead => {
+    const closureStatus = (lead.closures || '').toLowerCase();
+    const outcome = (lead.outcome || '').toLowerCase();
+    return !closureStatus.includes('won') && !closureStatus.includes('lost') && !closureStatus.includes('closed') && !closureStatus.includes('dead') && !outcome.includes('not qualified');
+  });
+
+  // 2. Apply Filters (Follow-up, Pending, Date)
+  const filteredData = activeLeads.filter(lead => {
+    // Date filter
+    if (filterDate) {
+      const createdAt = lead.created_at ? new Date(lead.created_at).toISOString().split('T')[0] : '';
+      const meetingDate = lead.meeting_date ? new Date(lead.meeting_date).toISOString().split('T')[0] : '';
+      const convoDate = lead.conversation_time ? new Date(lead.conversation_time).toISOString().split('T')[0] : '';
+      
+      if (createdAt !== filterDate && meetingDate !== filterDate && convoDate !== filterDate) return false;
+    }
+
+    if (activeTab === 'All Active') return true;
+
+    if (activeTab === 'Follow-up') {
+      const callOut = (lead.call_outcome || '').toLowerCase();
+      const meetType = (lead.meeting_type || '').toLowerCase();
+      // Sometimes "followup meeting" might be indicated by outcome
+      return callOut.includes('follow-up') || callOut.includes('follow up') || meetType.includes('follow');
+    }
+
+    if (activeTab === 'Pending') {
+      const demo = (lead.demo_call || '').toLowerCase();
+      const prop = (lead.proposal_sent || '').toLowerCase();
+      const close = (lead.closures || '').toLowerCase();
+      return demo.includes('pending') || prop.includes('pending') || close.includes('pending');
+    }
+
+    return true;
+  });
+
+  if (loading) return <Loader message="Loading Customer..." />;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '100%', margin: '0 auto' }}>
       
       <div style={{ marginBottom: '-8px' }}>
-        <PageSearchBar placeholder="Search customers..." />
+        <PageSearchBar placeholder="Search active leads..." />
       </div>
 
       {/* Top Action Bar */}
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '16px', backgroundColor: '#ffffff', padding: '16px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button style={{ padding: '8px', backgroundColor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '6px', color: '#3b82f6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Filter style={{ width: '16px', height: '16px' }} />
-          </button>
-          
-          <div style={{ position: 'relative' }}>
-            <button 
-              onClick={() => setIsActionsOpen(!isActionsOpen)}
+        {/* Left Side: Filter Tabs */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderRadius: '8px', padding: '4px', border: '1px solid #e2e8f0' }}>
+            <button
+              onClick={() => setActiveTab('All Active')}
               style={{
-              padding: '8px 16px',
-              backgroundColor: '#ffffff',
-              border: '1px solid #cbd5e1',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: 500,
-              color: '#3b82f6',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              cursor: 'pointer'
-            }}>
-              Actions <ChevronDown style={{ width: '16px', height: '16px' }} />
-            </button>
-            {isActionsOpen && (
-              <div style={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                marginTop: '4px',
-                backgroundColor: '#ffffff',
-                border: '1px solid #e2e8f0',
-                borderRadius: '8px',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                minWidth: '160px',
-                zIndex: 50,
+                padding: '6px 16px',
+                fontSize: '14px',
+                fontWeight: 600,
+                borderRadius: '6px',
                 display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden'
-              }}>
-                {['Mass Update', 'Change Owner', 'Export Customers', 'Delete Selected'].map((action, idx) => (
-                  <button
-                    key={idx}
-                    style={{
-                      padding: '10px 16px',
-                      textAlign: 'left',
-                      backgroundColor: 'transparent',
-                      border: 'none',
-                      borderBottom: idx !== 3 ? '1px solid #f1f5f9' : 'none',
-                      fontSize: '14px',
-                      color: action === 'Delete Selected' ? '#ef4444' : '#334155',
-                      cursor: 'pointer',
-                      fontWeight: 500
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                    onClick={() => setIsActionsOpen(false)}
-                  >
-                    {action}
-                  </button>
-                ))}
-              </div>
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                border: activeTab === 'All Active' ? '1px solid #cbd5e1' : '1px solid transparent',
+                backgroundColor: activeTab === 'All Active' ? '#ffffff' : 'transparent',
+                color: activeTab === 'All Active' ? '#2563eb' : '#64748b',
+                boxShadow: activeTab === 'All Active' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+              }}
+            >
+              <List style={{ width: '16px', height: '16px' }} /> All Active
+            </button>
+            <button
+              onClick={() => setActiveTab('Follow-up')}
+              style={{
+                padding: '6px 16px',
+                fontSize: '14px',
+                fontWeight: 600,
+                borderRadius: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                border: activeTab === 'Follow-up' ? '1px solid #cbd5e1' : '1px solid transparent',
+                backgroundColor: activeTab === 'Follow-up' ? '#ffffff' : 'transparent',
+                color: activeTab === 'Follow-up' ? '#2563eb' : '#64748b',
+                boxShadow: activeTab === 'Follow-up' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+              }}
+            >
+              <Calendar style={{ width: '16px', height: '16px' }} /> Follow-up
+            </button>
+            <button
+              onClick={() => setActiveTab('Pending')}
+              style={{
+                padding: '6px 16px',
+                fontSize: '14px',
+                fontWeight: 600,
+                borderRadius: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                border: activeTab === 'Pending' ? '1px solid #cbd5e1' : '1px solid transparent',
+                backgroundColor: activeTab === 'Pending' ? '#ffffff' : 'transparent',
+                color: activeTab === 'Pending' ? '#2563eb' : '#64748b',
+                boxShadow: activeTab === 'Pending' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+              }}
+            >
+              <Clock style={{ width: '16px', height: '16px' }} /> Pending
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '14px', fontWeight: 500, color: '#64748b' }}>Date:</span>
+            <input 
+              type="date" 
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+              style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none', color: '#1e293b' }}
+            />
+            {filterDate && (
+              <button onClick={() => setFilterDate('')} style={{ padding: '4px', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center' }} title="Clear Date">
+                <XCircle style={{ width: '16px', height: '16px' }} />
+              </button>
             )}
           </div>
         </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button style={{ padding: '8px', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', color: '#64748b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <FileText style={{ width: '16px', height: '16px' }} />
-          </button>
-          <button style={{ padding: '8px', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', color: '#64748b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
-          </button>
-          
-          <button 
-            onClick={() => navigate('/customers/new')}
-            style={{
-            padding: '8px 16px',
-            backgroundColor: '#1b4353',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '14px',
-            fontWeight: 500,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: 'pointer',
-            boxShadow: '0 2px 4px rgba(27, 67, 83, 0.2)'
-          }}>
-            <Plus style={{ width: '16px', height: '16px' }} /> Add Customer
-          </button>
-        </div>
       </div>
 
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        fontSize: '14px',
-        color: '#64748b',
-        backgroundColor: '#ffffff',
-        padding: '12px 20px',
-        borderRadius: '12px',
-        border: '1px solid #e2e8f0',
-        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
-      }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#334155', fontWeight: 500 }}>
-          <input 
-            type="checkbox" 
-            onChange={(e) => setSelectedIds(e.target.checked ? customers.map(c => c.id) : [])}
-            checked={selectedIds.length === customers.length && customers.length > 0}
-            style={{ borderRadius: '4px', width: '16px', height: '16px', border: '1px solid #cbd5e1', accentColor: '#0d9488' }} 
-          />
-          <span>Select all 247 rows</span>
-        </label>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ fontWeight: 600, color: '#1e293b' }}>Total Count : 247 records</span>
-          <div style={{ padding: '4px 8px', backgroundColor: '#f1f5f9', borderRadius: '4px', color: '#3b82f6', cursor: 'pointer' }}>
-            <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
-          </div>
-        </div>
+      <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1e293b', marginTop: '-8px' }}>
+        Total Count : {filteredData.length} active leads
       </div>
 
-      <DataTable columns={columns} data={customers} selectedIds={selectedIds} onSelectAll={(e) => setSelectedIds(e.target.checked ? customers.map(c => c.id) : [])} />
+      <DataTable columns={columns} data={filteredData} selectedIds={selectedIds} onSelectAll={(e) => setSelectedIds(e.target.checked ? filteredData.map(c => c.id) : [])} rowsPerPage={25} />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import apiClient from '../api/apiClient';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import Loader from '../components/Loader';
 import PageSearchBar from '../components/PageSearchBar';
 
 const AdminApprovals = () => {
@@ -40,7 +41,7 @@ const AdminApprovals = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loader message="Loading approvals..." />;
 
   return (
     <div>

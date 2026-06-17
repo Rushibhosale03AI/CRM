@@ -41,6 +41,41 @@ class UserDetailView(APIView):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
 
+    def put(self, request):
+        user = request.user
+        # Only allow updating name and username
+        data = request.data.copy()
+        if 'email' in data:
+            data.pop('email')
+        if 'role' in data:
+            data.pop('role')
+        if 'is_approved' in data:
+            data.pop('is_approved')
+            
+        serializer = UserSerializer(user, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ChangePasswordView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+
+        if not current_password or not new_password:
+            return Response({'error': 'Current password and new password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not user.check_password(current_password):
+            return Response({'error': 'Incorrect current password.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        user.set_password(new_password)
+        user.save()
+        return Response({'message': 'Password updated successfully.'})
+
 class PendingUsersView(generics.ListAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -65,6 +100,23 @@ class ApproveUserView(APIView):
             return Response({"message": "User approved successfully."})
         except CustomUser.DoesNotExist:
             return Response({"error": "Pending user not found."}, status=status.HTTP_404_NOT_FOUND)
+
+class UserDeleteView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, pk):
+        if getattr(request.user, 'role', None) != 'Admin':
+            return Response({"error": "Only Admins can delete users."}, status=status.HTTP_403_FORBIDDEN)
+        
+        if request.user.id == pk:
+            return Response({"error": "You cannot delete your own admin account."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            user = CustomUser.objects.get(pk=pk)
+            user.delete()
+            return Response({"message": "User and their personal activity records deleted successfully."})
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
 class UsersListView(APIView):
     def get(self, request):

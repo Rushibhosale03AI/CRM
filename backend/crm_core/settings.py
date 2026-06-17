@@ -67,6 +67,14 @@ DATABASES = {
         'HOST': '192.168.0.253',
         'PORT': '3306',
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'crm_tdtl',
+    #     'USER': 'root',
+    #     'PASSWORD': 'RUSH!03',
+    #     'HOST': 'localhost',
+    #     'PORT': '3306',
+    # }
 }
 
 AUTH_USER_MODEL = 'authentication.CustomUser'

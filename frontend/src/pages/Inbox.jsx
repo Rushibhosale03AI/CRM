@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Filter, MoreVertical, MessageSquare, PhoneCall, Star, Video, Image, Paperclip, Send, Smile } from 'lucide-react';
 import apiClient from '../api/apiClient';
 import PageSearchBar from '../components/PageSearchBar';
+import Loader from '../components/Loader';
 
 const Inbox = () => {
   const [messages, setMessages] = useState([]);
@@ -22,6 +23,8 @@ const Inbox = () => {
       setLoading(false);
     }
   };
+
+  if (loading) return <Loader message="Loading Inbox..." />;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', maxWidth: '100%', margin: '0 auto', gap: '24px' }}>
@@ -92,7 +95,7 @@ const Inbox = () => {
                   cursor: 'pointer', 
                   borderRadius: '8px',
                   marginBottom: '4px',
-                  backgroundColor: index === 0 ? '#f0fdfa' : 'transparent',
+                  backgroundColor: index === 0 ? '#eff6ff' : 'transparent',
                   transition: 'background-color 0.2s'
                 }} 
                 onMouseEnter={(e) => { if(index !== 0) e.currentTarget.style.backgroundColor = '#f8fafc' }} 
@@ -103,7 +106,7 @@ const Inbox = () => {
                     width: '48px', 
                     height: '48px', 
                     borderRadius: '50%', 
-                    background: `linear-gradient(135deg, ${index === 0 ? '#2dd4bf, #0d9488' : '#cbd5e1, #94a3b8'})`,
+                    background: `linear-gradient(135deg, ${index === 0 ? '#2dd4bf, #2563eb' : '#cbd5e1, #94a3b8'})`,
                     color: '#ffffff',
                     display: 'flex',
                     alignItems: 'center',
@@ -142,7 +145,7 @@ const Inbox = () => {
                 width: '40px', 
                 height: '40px', 
                 borderRadius: '50%', 
-                background: 'linear-gradient(135deg, #2dd4bf, #0d9488)',
+                background: 'linear-gradient(135deg, #2dd4bf, #2563eb)',
                 color: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
@@ -183,7 +186,7 @@ const Inbox = () => {
 
             {/* Received Message */}
             <div style={{ display: 'flex', gap: '12px', maxWidth: '80%' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #2dd4bf, #0d9488)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold', flexShrink: 0 }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #2dd4bf, #2563eb)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold', flexShrink: 0 }}>
                 U
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>

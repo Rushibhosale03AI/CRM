@@ -4,6 +4,7 @@ import apiClient from '../api/apiClient';
 import { AuthContext } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import PageSearchBar from '../components/PageSearchBar';
+import Loader from '../components/Loader';
 
 const AdminEODReports = () => {
   const { user } = useContext(AuthContext);
@@ -69,6 +70,8 @@ const AdminEODReports = () => {
     const d = new Date(dateStr);
     return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
   };
+
+  if (loading) return <Loader message="Loading AdminEODReports..." />;
 
   return (
     <div style={{ padding: '32px', maxWidth: '1400px', margin: '0 auto', fontFamily: '"Inter", sans-serif' }}>
@@ -183,7 +186,7 @@ const AdminEODReports = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   <div style={{
                     width: '40px', height: '40px', borderRadius: '50%',
-                    background: 'linear-gradient(to top right, #e0e7ff, #c7d2fe)',
+                    background: 'linear-gradient(to top right, #dbeafe, #bfdbfe)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     color: '#4f46e5', fontWeight: 'bold', fontSize: '14px'
                   }}>
@@ -277,8 +280,8 @@ const AdminEODReports = () => {
                   </div>
                   
                   {report.key_deals_focus && (
-                    <div style={{ marginTop: '20px', backgroundColor: '#f0fdfa', padding: '12px', borderRadius: '8px' }}>
-                      <span style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#0f766e', marginBottom: '4px' }}>Key Deals Focus Today:</span>
+                    <div style={{ marginTop: '20px', backgroundColor: '#eff6ff', padding: '12px', borderRadius: '8px' }}>
+                      <span style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#2563eb', marginBottom: '4px' }}>Key Deals Focus Today:</span>
                       <p style={{ margin: 0, fontSize: '13px', color: '#115e59', whiteSpace: 'pre-wrap' }}>{report.key_deals_focus}</p>
                     </div>
                   )}

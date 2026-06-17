@@ -1,16 +1,104 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @layer base {
+  :root {
+    --bg-primary: #f4f7f6;
+    --bg-card: #ffffff;
+    --bg-hover: #f1f5f9;
+    --bg-blue-light: #eff6ff;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-light: #94a3b8;
+    --border-color: #e2e8f0;
+    --border-light: #cbd5e1;
+    --accent-blue: #3b82f6;
+    --accent-blue-hover: #2563eb;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    --glass-bg: rgba(255, 255, 255, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.5);
+  }
+
+  [data-theme="dark"] {
+    --bg-primary: #0f172a;
+    --bg-card: #1e293b;
+    --bg-hover: #334155;
+    --bg-blue-light: #1e3a8a;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-light: #94a3b8;
+    --border-color: #334155;
+    --border-light: #475569;
+    --accent-blue: #3b82f6;
+    --accent-blue-hover: #60a5fa;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.5), 0 2px 4px -1px rgba(0,0,0,0.3);
+    --glass-bg: rgba(30, 41, 59, 0.7);
+    --glass-border: rgba(51, 65, 85, 0.8);
+  }
+
   html, body {
     height: 100%;
     margin: 0;
     overflow: hidden;
   }
   body {
-    @apply bg-[#f4f7f6] text-slate-800 antialiased;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    @apply antialiased;
     font-family: 'Inter', sans-serif;
   }
 }
 
+/* Responsive Utility Classes to override inline styles */
+.desktop-only {
+  display: flex !important;
+}
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+.mobile-only {
+  display: none !important;
+}
+@media (max-width: 768px) {
+  .mobile-only {
+    display: flex !important;
+  }
+}
+
+/* Sidebar Off-canvas */
+.sidebar-container {
+  transition: transform 0.3s ease-in-out;
+}
+@media (max-width: 768px) {
+  .sidebar-container {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 50 !important;
+    transform: translateX(-100%);
+  }
+  .sidebar-container.open {
+    transform: translateX(0);
+  }
+}
+
+/* Responsive Overrides */
+@media (max-width: 768px) {
+  .responsive-padding {
+    padding: 12px !important;
+  }
+  .responsive-flex-wrap {
+    flex-wrap: wrap !important;
+  }
+  .responsive-w-full {
+    width: 100% !important;
+  }
+  .responsive-navbar {
+    padding: 0 16px !important;
+  }
+}
