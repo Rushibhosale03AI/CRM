@@ -55,7 +55,6 @@ const DataTable = ({ columns, data, onSelectAll, selectedIds, rowsPerPage = 10 }
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
                     {col.header}
-                    <svg style={{ width: '16px', height: '16px', color: '#cbd5e1', marginLeft: '8px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
                   </div>
                 </th>
               ))}

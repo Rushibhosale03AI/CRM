@@ -24,15 +24,14 @@ const Leads = () => {
   const { user } = useContext(AuthContext);
 
   const leadSearchOptions = [
-    { label: 'Industry', value: 'industry' },
     { label: 'Contact Name', value: 'contact_name' },
-    { label: 'Company Name', value: 'company_name' },
-    { label: 'Email Address', value: 'email_address' },
-    { label: 'Contact No', value: 'contact_no' },
-    { label: 'Designation', value: 'designation' },
     { label: 'Source', value: 'source' },
     { label: 'Call Outcome', value: 'call_outcome' },
-    { label: 'Address', value: 'address' }
+    { label: 'Closures', value: 'closures' },
+    { label: 'Proposal Sent', value: 'proposal_sent' },
+    { label: 'Demo Call', value: 'demo_call' },
+    { label: 'Call Status', value: 'call_status' },
+    { label: 'Meeting Status', value: 'status' }
   ];
 
   useEffect(() => {
@@ -188,7 +187,11 @@ const Leads = () => {
     { header: 'Contact No', accessor: 'contact_no' },
     { header: 'Address', accessor: 'address' },
     { header: 'Designation', accessor: 'designation' },
-    { header: 'Meeting Date', accessor: 'meeting_date', render: (row) => row.meeting_date ? new Date(row.meeting_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '' },
+    { header: 'Meeting Date', accessor: 'meeting_date', render: (row) => {
+      if (!row.meeting_date) return '';
+      const d = new Date(row.meeting_date);
+      return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    } },
     { header: 'AE Assigned', accessor: 'ae_assigned_details', render: (row) => row.ae_assigned_details?.name || row.ae_assigned_details?.username || 'Unassigned' },
     { header: 'Status', accessor: 'status' },
     { header: 'Call Outcome', accessor: 'call_outcome' },
@@ -221,14 +224,13 @@ const Leads = () => {
       if (searchField === 'all') {
         match = (
           (lead.contact_name || '').toLowerCase().includes(searchQuery) ||
-          (lead.company_name || '').toLowerCase().includes(searchQuery) ||
-          (lead.email_address || '').toLowerCase().includes(searchQuery) ||
-          (lead.contact_no || '').toLowerCase().includes(searchQuery) ||
-          (lead.industry || '').toLowerCase().includes(searchQuery) ||
-          (lead.designation || '').toLowerCase().includes(searchQuery) ||
           (lead.source || '').toLowerCase().includes(searchQuery) ||
           (lead.call_outcome || '').toLowerCase().includes(searchQuery) ||
-          (lead.address || '').toLowerCase().includes(searchQuery)
+          (lead.closures || '').toLowerCase().includes(searchQuery) ||
+          (lead.proposal_sent || '').toLowerCase().includes(searchQuery) ||
+          (lead.demo_call || '').toLowerCase().includes(searchQuery) ||
+          (lead.call_status || '').toLowerCase().includes(searchQuery) ||
+          (lead.status || '').toLowerCase().includes(searchQuery)
         );
       } else {
         match = (lead[searchField] || '').toLowerCase().includes(searchQuery);
@@ -249,6 +251,42 @@ const Leads = () => {
     }
     // Active
     return !closureStatus.includes('won') && !closureStatus.includes('lost') && !closureStatus.includes('closed') && !closureStatus.includes('dead') && !outcome.includes('not qualified');
+  });
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const getSortGroup = (dateStr) => {
+    if (!dateStr) return 2;
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 2;
+    
+    const meetDate = new Date(d);
+    meetDate.setHours(0, 0, 0, 0);
+    
+    if (meetDate < today) return 1; // Past dates
+    return 0; // Today and future dates
+  };
+
+  const sortedLeads = [...filteredLeads].sort((a, b) => {
+    const groupA = getSortGroup(a.meeting_date);
+    const groupB = getSortGroup(b.meeting_date);
+
+    if (groupA !== groupB) {
+      return groupA - groupB;
+    }
+
+    if (groupA === 0) {
+      // Future and today: Ascending (today first, then tomorrow, etc.)
+      return new Date(a.meeting_date) - new Date(b.meeting_date);
+    }
+    
+    if (groupA === 1) {
+      // Past dates: Descending (most recent past first, older ones at the bottom)
+      return new Date(b.meeting_date) - new Date(a.meeting_date);
+    }
+    
+    return 0;
   });
 
   const handleSelectAll = (e) => {
@@ -467,10 +505,10 @@ const Leads = () => {
 
       
       <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1e293b', marginTop: '-8px' }}>
-        Total Count : {filteredLeads.length} records
+        Total Count : {sortedLeads.length} records
       </div>
 
-      <DataTable columns={columns} data={filteredLeads} selectedIds={selectedIds} onSelectAll={handleSelectAll} rowsPerPage={25} />
+      <DataTable columns={columns} data={sortedLeads} selectedIds={selectedIds} onSelectAll={handleSelectAll} rowsPerPage={25} />
 
       {leadToDelete && createPortal(
         <div style={{

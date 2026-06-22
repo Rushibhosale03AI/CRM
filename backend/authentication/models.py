@@ -23,3 +23,12 @@ class PasswordResetOTP(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.otp}"
+
+class OutlookToken(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='outlook_token')
+    access_token = models.TextField()
+    refresh_token = models.TextField()
+    expires_at = models.DateTimeField()
+
+    def __str__(self):
+        return f"Outlook Token for {self.user.username}"

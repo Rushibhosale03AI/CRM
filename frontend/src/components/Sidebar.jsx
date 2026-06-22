@@ -169,7 +169,8 @@ const Sidebar = ({ isOpen, onClose }) => {
               animation: 'fadeIn 0.2s ease-out',
               textAlign: isCollapsed ? 'left' : 'center'
             }}>
-              Kartik Tambat, Ajay Shinde, Sonali Dalvi, Ashwini Takik, Supriya Shelke, Ishwari Lambkhade, Rushikesh Bhosale, Swarada Joshi, Tejas Rane
+              Kartik Tambat, Ajay Shinde, Sonali Dalvi, Ashwini Takik, Supriya Shelke, Ishwari lamkhede,
+               Rushikesh Bhosale, Swarada Joshi, Tejas Rane
               <div style={{
                 position: 'absolute',
                 top: '100%',
